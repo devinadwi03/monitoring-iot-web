@@ -1,0 +1,155 @@
+### Register
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+  "name": "Admin2",
+  "email": "admin@example.com",
+  "password": "password"
+}
+
+# --- Register user ---
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+  "name": "Admin",
+  "email": "admin@test.com",
+  "password": "123456"
+}
+###
+
+# --- Login user ---
+POST http://localhost:8000/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "password"
+}
+###
+
+# --- Get current user ---
+GET http://localhost:8000/api/me
+Authorization: Bearer 15|byr45o2zQJAJbUSG1DmDc27DPM4Iz0b052NuMV4zdcb6e608
+###
+
+# --- Logout user ---
+POST http://localhost:8000/api/logout
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+###
+
+### List semua devices (shared)
+GET http://localhost:8000/api/devices
+Authorization: Bearer 12|e4RdznSHUAFASny3BXlz3He9Xs0gNp3ttH3qkN1we571ff46
+
+###
+
+### Tambahkan device baru
+POST http://localhost:8000/api/devices
+Content-Type: application/json
+Authorization: Bearer 12|e4RdznSHUAFASny3BXlz3He9Xs0gNp3ttH3qkN1we571ff46
+
+{
+  "name": "Device2",
+  "location": "Gudang 2"
+}
+
+###
+
+### Ambil detail satu device
+GET http://localhost:8000/api/devices/1
+Authorization: Bearer 11|5BuNkMDWBAYqKhwyXuYOExiP7fDBiSJGScdZDGpLd5ef2e3b
+
+###
+
+### Kirim data sensor (by API Key)
+POST http://localhost:8000/api/sensor-data
+Content-Type: application/json
+X-API-KEY: 192154eda816654cc7d096a54f0643da238d564af7d3d8e72a89838866bef2bd
+
+{
+  "field1": 94,
+  "field2": 27
+}
+
+
+###
+
+### Ambil data sensor dari device
+GET http://localhost:8000/api/devices/1/data
+Authorization: Bearer 12|e4RdznSHUAFASny3BXlz3He9Xs0gNp3ttH3qkN1we571ff46
+
+#####################################################################################################
+# --- Register user ---
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+  "name": "User satu",
+  "email": "usersatu@test.com",
+  "password": "usersatu",
+  "role": "user"
+}
+###
+
+### UPDATE USER SENDIRI
+PUT http://localhost:8000/api/user
+Authorization: Bearer 13|avlyg0Njs7fNFdxRnP9FNp8tAP0XD4cjcdlETWMTd683eef2
+Content-Type: application/json
+
+{
+  "name": "User Satu Update",
+  "password": "passwordbaru123"
+}
+
+###
+
+### DELETE AKUN SENDIRI
+DELETE http://localhost:8000/api/user
+Authorization: Bearer 13|avlyg0Njs7fNFdxRnP9FNp8tAP0XD4cjcdlETWMTd683eef2
+
+###
+
+### LIST SEMUA USER
+GET http://localhost:8000/api/admin/users
+Authorization: Bearer 15|byr45o2zQJAJbUSG1DmDc27DPM4Iz0b052NuMV4zdcb6e608
+
+###
+
+### LIHAT USER BERDASARKAN ID
+GET http://localhost:8000/api/admin/users/6
+Authorization: Bearer 15|byr45o2zQJAJbUSG1DmDc27DPM4Iz0b052NuMV4zdcb6e608
+
+###
+
+### BUAT USER BARU (ADMIN)
+POST http://localhost:8000/api/admin/users
+Authorization: Bearer 15|byr45o2zQJAJbUSG1DmDc27DPM4Iz0b052NuMV4zdcb6e608
+Content-Type: application/json
+
+{
+  "name": "User Baru",
+  "email": "userbaru@example.com",
+  "password": "password123",
+  "role": "user"
+}
+
+###
+
+### UPDATE USER
+PUT http://localhost:8000/api/admin/users/6
+Authorization: Bearer 15|byr45o2zQJAJbUSG1DmDc27DPM4Iz0b052NuMV4zdcb6e608
+Content-Type: application/json
+
+{
+  "name": "Admin Baru",
+  "password": "adminbaru",
+  "role": "admin"
+}
+
+###
+
+### DELETE USER
+DELETE http://localhost:8000/api/admin/users/2
+Authorization: Bearer 15|byr45o2zQJAJbUSG1DmDc27DPM4Iz0b052NuMV4zdcb6e608

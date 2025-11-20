@@ -1,0 +1,60 @@
+# --- Login user ---
+POST http://localhost:8000/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "password"
+}
+###
+
+# --- Get current user ---
+GET http://localhost:8000/api/me
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+###
+
+### LIST SEMUA DEVICE
+GET http://localhost:8000/api/devices
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+
+###
+
+### LIHAT 1 DEVICE
+GET http://localhost:8000/api/devices/2
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+
+###
+
+### BUAT DEVICE BARU
+POST http://localhost:8000/api/devices
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+Content-Type: application/json
+
+{
+  "name": "Toren 1",
+  "location": "Gudang"
+}
+
+###
+
+### UPDATE DEVICE
+PUT http://localhost:8000/api/devices/1
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+Content-Type: application/json
+
+{
+  "name": "Toren Utama",
+  "location": "Depan Kantor"
+}
+
+###
+
+### HAPUS DEVICE
+DELETE http://localhost:8000/api/devices/2
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+
+
+# --- Logout user ---
+POST http://localhost:8000/api/logout
+Authorization: Bearer 16|zUbKrDrAtPu3qkMPZZqqU3VVuj3bgINuRCeL6E3ic20fd1bc
+###

@@ -1,0 +1,26 @@
+(DONE) * Backend OTP tiap login pake email
+(DONE) * Frontend OTP tiap login pake email
+(DONE) * Sebelum logout kasih alert
+(DONE) * Backend OTP login google auth (pragmarx)
+(DONE) * Frontend OTP login google auth
+(DONE) * Backend validasi password yg kuat
+(DONE) * Frontend validasi password yg kuat
+(DONE) * Frontend buat forgot password (tambahin pemberitahuan setelah passwordnya direset)
+(DONE) * Backend buat forgot password
+(DONE) * Frontend tambahin logika redirect ke halaman login bagian forgot-password ketika token teridentifikasi salah
+(DONE) * Backend kirim verifikasi email waktu registrasi
+(DONE) * Frontend verifikasi email (udah kirim email)
+(DONE) * Frontend verifikasi email (berhasil verifikasi)
+(BOLEHLAH) * Frontend kirim ulang verifikasi email
+(DONE) * Backend kirim ulang verifikasi email
+(DONE) * Backend remember me pakai refresh token
+(DONE) * Frontend remember me pakai refresh token
+(DONE) * Rapiin backend update account (soalnya di backend masih bisa langsung masukin password)
+(LOGIN AGAK KURENG) * Responsifin semua page
+(DONE) * Nyobain buat admin yg kirim email verifikasi
+(DONE) * Menyesuaikan tampilan add admin biar bisa kirim ulang email verif
+
+Ide buat web dashboard monitoring iot
+(DONE) * ‌Semua data lengkap device (api key dll) bisa tampil klo admin
+(DONE) ‌* Admin punya pilihan buat nampilin data sensor dalam bentuk tabel dan dashboard visual (untuk keperluan analisa)
+(DONE) * Jadinya klo mau ganti API, admin regenerate API_Key manual
