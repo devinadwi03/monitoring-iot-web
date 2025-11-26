@@ -19,7 +19,7 @@ class DeviceTypeController extends Controller
         $type = DeviceType::find($id);
 
         if (!$type) {
-            return response()->json(['message' => 'Device type not found'], 404);
+            return response()->json(['message' => 'Device type tidak ditemukan'], 404);
         }
 
         return response()->json($type);
@@ -29,15 +29,20 @@ class DeviceTypeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'type_name' => 'required|string|unique:device_types,type_name',
-            'description' => 'nullable|string'
+            'name'            => 'required|string|max:255',
+            'description'     => 'nullable|string',
+            'settings_schema' => 'nullable|array', // JSON schema
         ]);
 
-        $type = DeviceType::create($request->all());
+        $deviceType = DeviceType::create([
+            'name'            => $request->name,
+            'description'     => $request->description,
+            'settings_schema' => $request->settings_schema,
+        ]);
 
         return response()->json([
-            'message' => 'Device type created successfully',
-            'data' => $type
+            'message' => 'Device type berhasil dibuat',
+            'data'    => $deviceType,
         ], 201);
     }
 
@@ -47,19 +52,21 @@ class DeviceTypeController extends Controller
         $type = DeviceType::find($id);
 
         if (!$type) {
-            return response()->json(['message' => 'Device type not found'], 404);
+            return response()->json(['message' => 'Device type tidak ditemukan'], 404);
         }
 
         $request->validate([
-            'type_name' => 'required|string|unique:device_types,type_name,' . $id,
-            'description' => 'nullable|string'
+            'name'            => 'sometimes|string|max:255',
+            'description'     => 'nullable|string',
+            'settings_schema' => 'nullable|array',
         ]);
 
+        $type = DeviceType::findOrFail($id);
         $type->update($request->all());
 
         return response()->json([
-            'message' => 'Device type updated successfully',
-            'data' => $type
+            'message' => 'Device type berhasil diupdate',
+            'data'    => $type,
         ]);
     }
 
@@ -69,11 +76,11 @@ class DeviceTypeController extends Controller
         $type = DeviceType::find($id);
 
         if (!$type) {
-            return response()->json(['message' => 'Device type not found'], 404);
+            return response()->json(['message' => 'Device type tidak ditemukan'], 404);
         }
 
         $type->delete();
 
-        return response()->json(['message' => 'Device type deleted successfully']);
+        return response()->json(['message' => 'Device type dihapus']);
     }
 }
