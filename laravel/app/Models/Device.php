@@ -27,4 +27,18 @@ class Device extends Model
     {
         return $this->hasMany(SensorData::class);
     }
+
+    // Relasi ke device_setting
+    public function settings()
+    {
+        return $this->hasMany(DeviceSettings::class);
+    }
+
+    // Relasi ke device_type
+    public function type()
+    {
+        return $this->belongsTo(DeviceType::class, 'device_type_id');
+    }
+
+
 }

@@ -44,6 +44,44 @@ export default function DeviceDetailPage() {
       .catch((err) => console.error("Gagal ambil role:", err));
   }, []);
 
+  function formatTanggalLengkap(dt) {
+    const date = new Date(dt);
+
+    const hari = [
+      "Minggu",
+      "Senin",
+      "Selasa",
+      "Rabu",
+      "Kamis",
+      "Jumat",
+      "Sabtu",
+    ];
+    const bulan = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
+
+    const namaHari = hari[date.getDay()];
+    const tanggal = date.getDate();
+    const namaBulan = bulan[date.getMonth()];
+    const tahun = date.getFullYear();
+
+    const jam = date.getHours().toString().padStart(2, "0");
+    const menit = date.getMinutes().toString().padStart(2, "0");
+
+    return `${namaHari}, ${tanggal} ${namaBulan} ${tahun} ${jam}:${menit}`;
+  }
+
   const fetchData = useCallback(async () => {
     try {
       const data = await getSensorData(deviceId); // ambil langsung dari DB
@@ -73,9 +111,8 @@ export default function DeviceDetailPage() {
       const volume_hc = (tinggi_hc / TINGGI_TOREN) * KAPASITAS_TOREN;
       const volume_jsn = (tinggi_jsn / TINGGI_TOREN) * KAPASITAS_TOREN;
 
-      const timestamp = new Date(
-        lastUpdate.replace(" ", "T")
-      ).toLocaleTimeString();
+      // 🔥 FORMAT TANGGAL BARU
+      const timestamp = formatTanggalLengkap(lastUpdate.replace(" ", "T"));
 
       setHc({
         tinggi: tinggi_hc.toFixed(1) + " cm",
@@ -97,7 +134,7 @@ export default function DeviceDetailPage() {
 
       // ✅ Update chart pakai 5 data terakhir dari DB
       const labelsArr = latestData.map((d) =>
-        new Date(d.created_at.replace(" ", "T")).toLocaleTimeString()
+        formatTanggalLengkap(d.created_at.replace(" ", "T"))
       );
 
       const hcArr = latestData.map((d) => {
