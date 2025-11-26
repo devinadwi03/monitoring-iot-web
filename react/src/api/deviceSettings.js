@@ -2,18 +2,12 @@ import api from "./axios";
 
 /* ================================
    GET semua device settings
+   atau berdasarkan device ID
 ================================ */
-export const getAllDeviceSettings = async () => {
-  const res = await api.get("/device-settings");
-  return res.data;
-};
-
-/* ================================
-   GET device settings berdasarkan device ID
-   (umumnya dipakai di halaman detail/edit)
-================================ */
-export const getDeviceSettingsByDevice = async (deviceId) => {
-  const res = await api.get(`/device-settings/device/${deviceId}`);
+export const getDeviceSettings = async (deviceId) => {
+  const res = await api.get("/device-settings", {
+    params: deviceId ? { device_id: deviceId } : {},
+  });
   return res.data;
 };
 

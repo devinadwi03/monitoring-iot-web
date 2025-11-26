@@ -6,6 +6,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/solid";
 import { ClipboardIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import EditSettingsModal from "./EditSettingsModal";
 import toast from "react-hot-toast";
 
 export default function DeviceCard({
@@ -26,6 +27,7 @@ export default function DeviceCard({
   const [editName, setEditName] = useState(name);
   const [editSerial, setEditSerial] = useState(serial_number);
   const [editLocation, setEditLocation] = useState(location);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // sync state dengan props ketika masuk mode edit
   useEffect(() => {
@@ -141,6 +143,17 @@ export default function DeviceCard({
             >
               <TrashIcon className="h-5 w-5 text-red-600" />
             </button>
+            {/* Tombol Edit Settings */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalOpen(true);
+              }}
+              className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition"
+              title="Edit Settings"
+            >
+              ⚙️
+            </button>
           </div>
         </>
       ) : (
@@ -183,6 +196,14 @@ export default function DeviceCard({
             </button>
           </div>
         </div>
+      )}
+      {/* Modal */}
+      {modalOpen && (
+        <EditSettingsModal
+          deviceId={id}
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
       )}
     </div>
   );
