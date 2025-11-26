@@ -14,6 +14,9 @@ import OtpVerifyPage from "./pages/OtpVerifyPage";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import TwoFactorSetup from "./pages/TwoFactorSetup";
+import DeviceTypeList from "./pages/DeviceTypeList";
+import AddDeviceTypeForm from "./pages/AddDeviceTypeForm";
+import EditDeviceTypeForm from "./pages/EditDeviceTypeForm";
 import { Toaster } from "react-hot-toast";
 import toast from "react-hot-toast";
 
@@ -56,9 +59,7 @@ export default function App() {
     } catch (error) {
       console.error("Logout gagal:", error);
       setUser(null); // fallback: reset user meski request error
-      toast.error(
-        error.response?.data?.message || "Gagal Logout"
-      );
+      toast.error(error.response?.data?.message || "Gagal Logout");
     }
   };
 
@@ -139,6 +140,33 @@ export default function App() {
         />
 
         {/* Admin Page (admin only) */}
+        <Route
+          path="/admin/device-types"
+          element={
+            <AuthGuard user={user} role="admin">
+              <DeviceTypeList />
+            </AuthGuard>
+          }
+        />
+
+        <Route
+          path="/admin/device-types/add"
+          element={
+            <AuthGuard user={user} role="admin">
+              <AddDeviceTypeForm />
+            </AuthGuard>
+          }
+        />
+
+        <Route
+          path="/admin/device-types/edit/:id"
+          element={
+            <AuthGuard user={user} role="admin">
+              <EditDeviceTypeForm />
+            </AuthGuard>
+          }
+        />
+
         <Route
           path="/admin/users"
           element={

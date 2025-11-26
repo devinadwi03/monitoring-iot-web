@@ -8,9 +8,9 @@ export default function Navbar({ user, onLogout }) {
   const location = useLocation();
 
   const isActive = (path) =>
-  location.pathname === path
-    ? "bg-white/20 text-white px-3 py-1 rounded-full transition-all"
-    : "hover:bg-white/10 px-3 py-1 rounded-full transition-all";
+    location.pathname === path
+      ? "bg-white/20 text-white px-3 py-1 rounded-full transition-all"
+      : "hover:bg-white/10 px-3 py-1 rounded-full transition-all";
 
   return (
     <nav className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 shadow-md relative">
@@ -34,6 +34,14 @@ export default function Navbar({ user, onLogout }) {
           <Link to="/add-device" className={isActive("/add-device")}>
             Tambah Device
           </Link>
+          {user?.role === "admin" && (
+            <Link
+              to="/admin/device-types"
+              className={isActive("/admin/device-types")}
+            >
+              Device Types
+            </Link>
+          )}
           {user?.role === "admin" && (
             <Link to="/admin/users" className={isActive("/admin/users")}>
               Manajemen User
@@ -79,6 +87,16 @@ export default function Navbar({ user, onLogout }) {
           >
             Tambah Device
           </Link>
+          {user?.role === "admin" && (
+            <Link
+              to="/admin/device-types"
+              onClick={() => setMenuOpen(false)}
+              className={isActive("/admin/device-types")}
+            >
+              Device Types
+            </Link>
+          )}
+
           {user?.role === "admin" && (
             <Link
               to="/admin/users"

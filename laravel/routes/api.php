@@ -6,6 +6,8 @@ use App\Http\Controllers\SensorDataController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProvisioningController;
+use App\Http\Controllers\DeviceTypeController;
+use App\Http\Controllers\DeviceSettingsController;
 use App\Http\Controllers\TwoFactorController;
 
 // Public routes
