@@ -31,9 +31,11 @@ export default function Navbar({ user, onLogout }) {
           <Link to="/" className={isActive("/")}>
             Dashboard
           </Link>
-          <Link to="/add-device" className={isActive("/add-device")}>
-            Tambah Device
-          </Link>
+          {user?.role === "admin" && (
+            <Link to="/add-device" className={isActive("/add-device")}>
+              Tambah Device
+            </Link>
+          )}
           {user?.role === "admin" && (
             <Link
               to="/admin/device-types"
@@ -80,13 +82,15 @@ export default function Navbar({ user, onLogout }) {
           >
             Dashboard
           </Link>
-          <Link
-            to="/add-device"
-            onClick={() => setMenuOpen(false)}
-            className={isActive("/add-device")}
-          >
-            Tambah Device
-          </Link>
+          {user?.role === "admin" && (
+            <Link
+              to="/add-device"
+              onClick={() => setMenuOpen(false)}
+              className={isActive("/add-device")}
+            >
+              Tambah Device
+            </Link>
+          )}
           {user?.role === "admin" && (
             <Link
               to="/admin/device-types"

@@ -14,6 +14,7 @@ class Device extends Model
         'api_key',
         'location',
         'serial_number',
+        'device_type_id',
     ];
 
     // Relasi ke user

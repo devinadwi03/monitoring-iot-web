@@ -27,12 +27,14 @@ class DeviceController extends Controller
             'name' => 'required|string',
             'serial_number' => 'required|string',
             'location' => 'nullable|string',
+            'device_type_id' => 'required|exists:device_types,id',
         ]);
 
         $device = Device::create([
             'name' => $validated['name'],
             'serial_number' => $validated['serial_number'],
             'location' => $validated['location'] ?? null,
+            'device_type_id' => $validated['device_type_id'],
             'api_key' => bin2hex(random_bytes(32))
         ]);
 
