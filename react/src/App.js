@@ -133,7 +133,7 @@ export default function App() {
         <Route
           path="/add-device"
           element={
-            <AuthGuard user={user}>
+            <AuthGuard user={user} role="admin">
               <AddDevicePage />
             </AuthGuard>
           }

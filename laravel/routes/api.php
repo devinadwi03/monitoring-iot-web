@@ -54,6 +54,14 @@ Route::middleware('jwt')->group(function() {
    
     Route::post('/logout', [AuthController::class,'logout']);
 
+    // Device Settings
+    Route::get('/device-settings', [DeviceSettingsController::class, 'index']);
+    Route::get('/device-settings/{id}', [DeviceSettingsController::class, 'show']);
+
+    // Device Type
+    Route::get('device-types', [DeviceTypeController::class, 'index']);
+    Route::get('device-types/{id}', [DeviceTypeController::class, 'show']);
+
     // 🔹 Devices CRUD
     Route::get('/devices', [DeviceController::class,'index']);
     Route::get('/devices/{device}', [DeviceController::class,'show']);
@@ -73,15 +81,11 @@ Route::middleware(['jwt', 'isAdmin'])->group(function () {
     Route::post('/devices/{device}/regenerate-key', [DeviceController::class, 'regenerateApiKey']);
     
     // Route Device Settings
-    Route::get('/device-settings', [DeviceSettingsController::class, 'index']);
     Route::post('/device-settings', [DeviceSettingsController::class, 'store']);
-    Route::get('/device-settings/{id}', [DeviceSettingsController::class, 'show']);
     Route::put('/device-settings/{id}', [DeviceSettingsController::class, 'update']);
     Route::delete('/device-settings/{id}', [DeviceSettingsController::class, 'destroy']);
 
     // Route Device type
-    Route::get('device-types', [DeviceTypeController::class, 'index']);
-    Route::get('device-types/{id}', [DeviceTypeController::class, 'show']);
     Route::post('device-types', [DeviceTypeController::class, 'store']);
     Route::put('device-types/{id}', [DeviceTypeController::class, 'update']);
     Route::delete('device-types/{id}', [DeviceTypeController::class, 'destroy']);

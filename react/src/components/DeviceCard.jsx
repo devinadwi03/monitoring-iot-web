@@ -125,24 +125,28 @@ export default function DeviceCard({
 
           {/* Tombol aksi */}
           <div className="absolute top-3 right-3 flex gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
-              }}
-              className="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 transition"
-            >
-              <PencilIcon className="h-5 w-5 text-yellow-600" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition"
-            >
-              <TrashIcon className="h-5 w-5 text-red-600" />
-            </button>
+            {role === "admin" && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditing(true);
+                  }}
+                  className="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 transition"
+                >
+                  <PencilIcon className="h-5 w-5 text-yellow-600" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                  className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition"
+                >
+                  <TrashIcon className="h-5 w-5 text-red-600" />
+                </button>
+              </>
+            )}
             {/* Tombol Edit Settings */}
             <button
               onClick={(e) => {
@@ -203,6 +207,7 @@ export default function DeviceCard({
           deviceId={id}
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
+          role={role}
         />
       )}
     </div>

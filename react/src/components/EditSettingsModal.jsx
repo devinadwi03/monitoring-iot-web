@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import toast from "react-hot-toast";
-import { updateDeviceSetting, getDeviceSettings, deleteDeviceSetting } from "../api/deviceSettings";
+import {
+  updateDeviceSetting,
+  getDeviceSettings,
+  deleteDeviceSetting,
+} from "../api/deviceSettings";
 
-export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
+export default function EditSettingsModal({ deviceId, isOpen, onClose, role }) {
   const [settings, setSettings] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -110,7 +114,7 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
           onMouseDown={startDrag}
         >
           <h2 className="text-lg font-semibold text-gray-800">
-            Edit Settings Device
+            Settings Device
           </h2>
           <button
             onClick={onClose}
@@ -130,22 +134,30 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
               <div key={s.id} className="flex items-start gap-2">
                 <div className="flex-1">
                   <label className="block text-sm mb-1">{s.key}</label>
+
                   <input
                     type="text"
                     value={s.value || ""}
-                    onChange={(e) => handleChange(idx, e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    onChange={(e) =>
+                      role === "admin" && handleChange(idx, e.target.value)
+                    }
+                    className={`w-full border border-gray-300 rounded-md px-3 py-2 ${
+                      role !== "admin" ? "bg-gray-100 cursor-not-allowed" : ""
+                    }`}
+                    disabled={role !== "admin"} // 💡 USER bisa lihat tapi tidak bisa edit
                   />
                 </div>
 
-                {/* ⬇️ TOMBOL HAPUS */}
-                <button
-                  onClick={() => handleDelete(s.id)}
-                  className="text-red-500 hover:text-red-700 mt-6"
-                  title="Hapus setting"
-                >
-                  ✕
-                </button>
+                {/* Tombol hapus hanya untuk admin */}
+                {role === "admin" && (
+                  <button
+                    onClick={() => handleDelete(s.id)}
+                    className="text-red-500 hover:text-red-700 mt-6"
+                    title="Hapus setting"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -156,15 +168,19 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
             onClick={onClose}
             className="flex items-center gap-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-lg transition"
           >
-            Batal
+            Tutup
           </button>
-          <button
-            onClick={handleSave}
-            disabled={loading || settings.length === 0}
-            className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition"
-          >
-            Simpan
-          </button>
+
+          {/* Tombol Simpan hanya admin */}
+          {role === "admin" && (
+            <button
+              onClick={handleSave}
+              disabled={loading || settings.length === 0}
+              className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition"
+            >
+              Simpan
+            </button>
+          )}
         </div>
       </div>
     </div>,
