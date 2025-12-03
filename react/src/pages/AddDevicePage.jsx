@@ -116,7 +116,7 @@ export default function AddDevicePage() {
             {/* SERIAL */}
             <input
               type="text"
-              placeholder="Serial Number (Opsional)"
+              placeholder="Serial Number"
               value={deviceSN}
               onChange={(e) => setDeviceSN(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
