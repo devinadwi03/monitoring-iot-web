@@ -1,13 +1,18 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import SensorCard from "../components/SensorCard";
 import ChartComponent from "../components/ChartComponent";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { getSensorData } from "../api/sensor";
+import { getDevice } from "../api/device"; // harus ada endpoint: GET /device/:id
+import { getDeviceSettings } from "../api/deviceSettings";
+import { getDeviceTypeById } from "../api/deviceType";
 import { useParams } from "react-router-dom";
 import { getMe } from "../api/auth"; // ambil data dari /me
 
 export default function DeviceDetailPage() {
   const { deviceId } = useParams();
+  const [device, setDevice] = useState(null);
+  const [deviceType, setDeviceType] = useState(null);
   const [role, setRole] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("time-desc");
@@ -32,10 +37,48 @@ export default function DeviceDetailPage() {
   const [dataHC, setDataHC] = useState([]);
   const [dataJSN, setDataJSN] = useState([]);
 
-  // Konstanta toren
-  const TINGGI_TOREN = 200;
-  const KAPASITAS_TOREN = 1000;
-  const BATAS_MINIMUM = 20;
+  // ambil device + device type + settings saat mount / deviceId berubah
+  useEffect(() => {
+    if (!deviceId) return;
+
+    const loadAll = async () => {
+      try {
+        const dev = await getDevice(deviceId); // pastikan getDevice mengembalikan res.data
+        setDevice(dev);
+
+        // ambil deviceType via API khusus
+        if (dev.device_type_id) {
+          const dt = await getDeviceTypeById(dev.device_type_id); // mengembalikan res.data
+          setDeviceType(dt);
+        } else {
+          setDeviceType(null);
+        }
+
+        // ambil settings per device
+        const resSettings = await getDeviceSettings(deviceId); // mengembalikan array settings
+        const obj = {};
+        (resSettings.data || resSettings || []).forEach((s) => {
+          obj[s.key] = s.value;
+        });
+
+        setTorenConst({
+          TINGGI_TOREN: Number(obj.tinggi_toren ?? obj.tinggi ?? 200),
+          KAPASITAS_TOREN: Number(obj.kapasitas_toren ?? obj.kapasitas ?? 1000),
+          BATAS_MINIMUM: Number(obj.batas_minimum ?? obj.batas_min ?? 20),
+        });
+      } catch (err) {
+        console.error("Gagal load device/type/settings:", err);
+      }
+    };
+
+    loadAll();
+  }, [deviceId]);
+
+  const [torenConst, setTorenConst] = useState({
+    TINGGI_TOREN: 200,
+    KAPASITAS_TOREN: 1000,
+    BATAS_MINIMUM: 20,
+  });
 
   // Ambil profil user (buat cek role)
   useEffect(() => {
@@ -82,84 +125,88 @@ export default function DeviceDetailPage() {
     return `${namaHari}, ${tanggal} ${namaBulan} ${tahun} ${jam}:${menit}`;
   }
 
-  const fetchData = useCallback(async () => {
-    try {
-      const data = await getSensorData(deviceId); // ambil langsung dari DB
-      if (!data || data.length === 0) return;
-
-      // simpan seluruh data mentah ke state (kalau dipakai di tempat lain)
-      setSensorData(data);
-
-      // Ambil maksimal 5 data terakhir dari database
-      const latestData = data.slice(0, 5).reverse(); // urut dari lama ke baru
-
-      // Ambil data terbaru untuk status
-      const newest = latestData[latestData.length - 1];
-      const jarak_hc = newest.field1 ?? null;
-      const jarak_jsn = newest.field2 ?? null;
-      const lastUpdate = newest.created_at;
-
-      const status_hc = getStatus(jarak_hc, lastUpdate);
-      const status_jsn = getStatus(jarak_jsn, lastUpdate);
-
-      const tinggi_hc = TINGGI_TOREN - (jarak_hc ?? 0);
-      const tinggi_jsn = TINGGI_TOREN - (jarak_jsn ?? 0);
-
-      const persen_hc = (tinggi_hc / TINGGI_TOREN) * 100;
-      const persen_jsn = (tinggi_jsn / TINGGI_TOREN) * 100;
-
-      const volume_hc = (tinggi_hc / TINGGI_TOREN) * KAPASITAS_TOREN;
-      const volume_jsn = (tinggi_jsn / TINGGI_TOREN) * KAPASITAS_TOREN;
-
-      // 🔥 FORMAT TANGGAL BARU
-      const timestamp = formatTanggalLengkap(lastUpdate.replace(" ", "T"));
-
-      setHc({
-        tinggi: tinggi_hc.toFixed(1) + " cm",
-        persen: persen_hc.toFixed(1) + "%",
-        volume: volume_hc.toFixed(1) + " L",
-        time: timestamp,
-        status: status_hc,
-      });
-
-      setJsn({
-        tinggi: tinggi_jsn.toFixed(1) + " cm",
-        persen: persen_jsn.toFixed(1) + "%",
-        volume: volume_jsn.toFixed(1) + " L",
-        time: timestamp,
-        status: status_jsn,
-      });
-
-      setAlert(persen_hc < BATAS_MINIMUM || persen_jsn < BATAS_MINIMUM);
-
-      // ✅ Update chart pakai 5 data terakhir dari DB
-      const labelsArr = latestData.map((d) =>
-        formatTanggalLengkap(d.created_at.replace(" ", "T"))
-      );
-
-      const hcArr = latestData.map((d) => {
-        const tinggi = TINGGI_TOREN - (d.field1 ?? 0);
-        return (tinggi / TINGGI_TOREN) * 100;
-      });
-
-      const jsnArr = latestData.map((d) => {
-        const tinggi = TINGGI_TOREN - (d.field2 ?? 0);
-        return (tinggi / TINGGI_TOREN) * 100;
-      });
-
-      setLabels(labelsArr);
-      setDataHC(hcArr);
-      setDataJSN(jsnArr);
-    } catch (err) {
-      console.error("Error fetching data", err);
-    }
-  }, [deviceId]);
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getSensorData(deviceId); // ambil langsung dari DB
+        if (!data || data.length === 0) return;
+
+        // simpan seluruh data mentah ke state (kalau dipakai di tempat lain)
+        setSensorData(data);
+
+        // Ambil maksimal 5 data terakhir dari database
+        const latestData = data.slice(0, 5).reverse(); // urut dari lama ke baru
+
+        // Ambil data terbaru untuk status
+        const newest = latestData[latestData.length - 1];
+        const jarak_hc = newest.field1 ?? null;
+        const jarak_jsn = newest.field2 ?? null;
+        const lastUpdate = newest.created_at;
+
+        const T = torenConst?.TINGGI_TOREN ?? 200;
+        const C = torenConst?.KAPASITAS_TOREN ?? 1000;
+        const B = torenConst?.BATAS_MINIMUM ?? 20;
+
+        const status_hc = getStatus(jarak_hc, lastUpdate);
+        const status_jsn = getStatus(jarak_jsn, lastUpdate);
+
+        const tinggi_hc = T - (jarak_hc ?? 0);
+        const tinggi_jsn = T - (jarak_jsn ?? 0);
+
+        const persen_hc = (tinggi_hc / T) * 100;
+        const persen_jsn = (tinggi_jsn / T) * 100;
+
+        const volume_hc = (tinggi_hc / T) * C;
+        const volume_jsn = (tinggi_jsn / T) * C;
+
+        // 🔥 FORMAT TANGGAL BARU
+        const timestamp = formatTanggalLengkap(lastUpdate.replace(" ", "T"));
+
+        setHc({
+          tinggi: tinggi_hc.toFixed(1) + " cm",
+          persen: persen_hc.toFixed(1) + "%",
+          volume: volume_hc.toFixed(1) + " L",
+          time: timestamp,
+          status: status_hc,
+        });
+
+        setJsn({
+          tinggi: tinggi_jsn.toFixed(1) + " cm",
+          persen: persen_jsn.toFixed(1) + "%",
+          volume: volume_jsn.toFixed(1) + " L",
+          time: timestamp,
+          status: status_jsn,
+        });
+
+        setAlert(persen_hc < B || persen_jsn < B);
+
+        // ✅ Update chart pakai 5 data terakhir dari DB
+        const labelsArr = latestData.map((d) =>
+          formatTanggalLengkap(d.created_at.replace(" ", "T"))
+        );
+
+        const hcArr = latestData.map((d) => {
+          const tinggi = T - (d.field1 ?? 0);
+          return (tinggi / T) * 100;
+        });
+
+        const jsnArr = latestData.map((d) => {
+          const tinggi = T - (d.field2 ?? 0);
+          return (tinggi / T) * 100;
+        });
+
+        setLabels(labelsArr);
+        setDataHC(hcArr);
+        setDataJSN(jsnArr);
+      } catch (err) {
+        console.error("Error fetching data", err);
+      }
+    };
+
     const interval = setInterval(fetchData, 20000);
     fetchData();
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [deviceId, torenConst]);
 
   function getStatus(jarak, lastUpdate) {
     if (jarak === null || isNaN(jarak)) return "Offline";
@@ -199,6 +246,15 @@ export default function DeviceDetailPage() {
     }
   });
 
+  if (!device) return <div className="text-gray-500 text-center py-10">Loading...</div>;
+
+  if (deviceType?.name !== "Monitoring Toren") {
+    return (
+      <div className="p-6 text-center text-gray-600">
+        Perangkat ini bukan jenis <b>Monitoring Toren</b>.
+      </div>
+    );
+  }
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8">
       <div className="flex justify-between items-center">

@@ -56,10 +56,7 @@ Route::middleware('jwt')->group(function() {
 
     // 🔹 Devices CRUD
     Route::get('/devices', [DeviceController::class,'index']);
-    Route::post('/devices', [DeviceController::class,'store']);
     Route::get('/devices/{device}', [DeviceController::class,'show']);
-    Route::put('/devices/{device}', [DeviceController::class, 'update']);
-    Route::delete('/devices/{device}', [DeviceController::class, 'destroy']);
 
     Route::get('/devices/{deviceId}/data', [SensorDataController::class, 'index']);
 
@@ -88,6 +85,11 @@ Route::middleware(['jwt', 'isAdmin'])->group(function () {
     Route::post('device-types', [DeviceTypeController::class, 'store']);
     Route::put('device-types/{id}', [DeviceTypeController::class, 'update']);
     Route::delete('device-types/{id}', [DeviceTypeController::class, 'destroy']);
+
+    //Route Device
+    Route::post('/devices', [DeviceController::class,'store']);
+    Route::put('/devices/{device}', [DeviceController::class, 'update']);
+    Route::delete('/devices/{device}', [DeviceController::class, 'destroy']);
 
 
 });

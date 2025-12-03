@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { XMarkIcon, CheckIcon } from "@heroicons/react/24/solid";
 import toast from "react-hot-toast";
-import { updateDeviceSetting, getDeviceSettings } from "../api/deviceSettings";
+import { updateDeviceSetting, getDeviceSettings, deleteDeviceSetting } from "../api/deviceSettings";
 
 export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
   const [settings, setSettings] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [originalSettings, setOriginalSettings] = useState([]);
 
   // Drag state
   const [position, setPosition] = useState({ top: "35%", left: "35%" });
@@ -16,12 +17,13 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
   // Load settings device
   useEffect(() => {
     if (!isOpen || !deviceId) return;
-    setPosition({ top: "35%", left: "35%" })
+    setPosition({ top: "35%", left: "35%" });
     const fetchSettings = async () => {
       try {
         setLoading(true);
         const res = await getDeviceSettings(deviceId);
         setSettings(res.data || res || []);
+        setOriginalSettings(res.data || res || []);
       } catch {
         toast.error("Gagal memuat settings");
       } finally {
@@ -37,12 +39,29 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
     setSettings(updated);
   };
 
+  // ⬇️ TAMBAHKAN INI
+  const handleDelete = (id) => {
+    setSettings((prev) => prev.filter((s) => s.id !== id));
+  };
+
   const handleSave = async () => {
     try {
       setLoading(true);
+      // Ambil ID yang masih ada (setelah delete di UI)
+      const currentIds = settings.map((s) => s.id);
+
+      // Hapus ID yang tidak ada lagi
+      await Promise.all(
+        originalSettings
+          .filter((s) => !currentIds.includes(s.id))
+          .map((s) => deleteDeviceSetting(s.id))
+      );
+
+      // Update yang tersisa
       for (const s of settings) {
         await updateDeviceSetting(s.id, { key: s.key, value: s.value });
       }
+
       toast.success("Settings berhasil diperbarui");
       onClose();
     } catch {
@@ -80,11 +99,10 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
       <div
         className="bg-white rounded-xl p-6 w-96 max-h-[80vh] overflow-y-auto shadow-lg animate-fadeIn absolute"
         style={{
-  top: position.top,
-  left: position.left,
-  position: "absolute",
-}}
-
+          top: position.top,
+          left: position.left,
+          position: "absolute",
+        }}
       >
         {/* Modal header: drag handle */}
         <div
@@ -109,14 +127,25 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
         ) : (
           <div className="space-y-3">
             {settings.map((s, idx) => (
-              <div key={s.id}>
-                <label className="block text-sm mb-1">{s.key}</label>
-                <input
-                  type="text"
-                  value={s.value || ""}
-                  onChange={(e) => handleChange(idx, e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                />
+              <div key={s.id} className="flex items-start gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm mb-1">{s.key}</label>
+                  <input
+                    type="text"
+                    value={s.value || ""}
+                    onChange={(e) => handleChange(idx, e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+
+                {/* ⬇️ TOMBOL HAPUS */}
+                <button
+                  onClick={() => handleDelete(s.id)}
+                  className="text-red-500 hover:text-red-700 mt-6"
+                  title="Hapus setting"
+                >
+                  ✕
+                </button>
               </div>
             ))}
           </div>
@@ -127,7 +156,6 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
             onClick={onClose}
             className="flex items-center gap-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-lg transition"
           >
-            <XMarkIcon className="h-5 w-5" />
             Batal
           </button>
           <button
@@ -135,7 +163,6 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose }) {
             disabled={loading || settings.length === 0}
             className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition"
           >
-            <CheckIcon className="h-4 w-4" />
             Simpan
           </button>
         </div>

@@ -299,9 +299,9 @@ export default function AdminUserPage({ currentUser }) {
         ) : (
           <button
             onClick={() => setShowForm(true)}
-            className="mb-6 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
           >
-            Tambah Admin
+            + Tambah Admin
           </button>
         )}
 

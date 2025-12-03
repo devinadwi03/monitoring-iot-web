@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DeviceSettings;
+use App\Models\Device;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -14,17 +15,36 @@ class DeviceSettingsController extends Controller
      */
     public function index(Request $request)
     {
-        $request->validate([
-            'device_id' => 'required|exists:devices,id'
-        ]);
+        $deviceId = $request->device_id;
 
-        $settings = DeviceSettings::where('device_id', $request->device_id)->get();
+        $device = Device::with('type')->findOrFail($deviceId);
+        $schema = $device->type->settings_schema['fields'];
 
-        return response()->json([
-            "success" => true,
-            "data" => $settings
-        ]);
+        $settings = DeviceSettings::where('device_id', $deviceId)->get();
+
+        foreach ($schema as $field) {
+            $existing = $settings->firstWhere('key', $field['key']);
+
+            if (!$existing) {
+                $default = $field['default'] 
+                    ?? match ($field['type']) {
+                        'number' => 0,
+                        'boolean' => false,
+                        default => '',
+                    };
+
+                $new = DeviceSettings::create([
+                    'device_id' => $deviceId,
+                    'key'       => $field['key'],
+                    'value'     => $default,
+                ]);
+
+                $settings->push($new);
+            }
+        }
+        return response()->json($settings);
     }
+
 
     /**
      * POST /device-settings

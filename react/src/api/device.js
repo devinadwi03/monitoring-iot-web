@@ -10,6 +10,16 @@ export async function getDevices() {
   }
 }
 
+export async function getDevice(deviceId) {
+  try {
+    const response = await api.get(`/devices/${deviceId}`); // pakai api, bukan axios
+    return response.data;
+  } catch (error) {
+    console.error("Gagal ambil devices:", error);
+    throw error;
+  }
+}
+
 export const createDevice = async (deviceData) => {
   const res = await api.post("/devices", deviceData, {
     headers: {
