@@ -61,7 +61,7 @@ export default function AddDeviceTypeForm() {
   return (
     <div className="bg-gray-50 min-h-screen py-6 ">
       <div className="p-6 max-w-2xl mx-auto space-y-6 bg-white shadow rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Form Tambah Device Type</h2>
+        <h2 className="text-2xl font-bold mb-4">Tambah Device Type</h2>
 
         {/* NAMA */}
         <div className="mb-4">
@@ -192,7 +192,7 @@ export default function AddDeviceTypeForm() {
         <button
           type="button"
           onClick={handleSubmit}
-          className="bg-green-600 text-white px-4 py-3 rounded w-full mt-4"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded w-full mt-4"
         >
           Simpan Device Type
         </button>
