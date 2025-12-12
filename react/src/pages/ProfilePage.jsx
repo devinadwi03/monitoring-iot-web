@@ -204,9 +204,14 @@ export default function ProfilePage({ onLogout }) {
                       <EyeIcon className="h-5 w-5" />
                     )}
                   </button>
-                  {oldPasswordValid === false && (
-                    <p className="text-red-500 text-sm mt-1">
+                  {passwordForm.oldPassword.length > 0 && oldPasswordValid === false && (
+                    <p className="text-red-500 text-xs mt-1">
                       Password lama salah
+                    </p>
+                  )}
+                  {passwordForm.oldPassword.length > 0 && oldPasswordValid === true && (
+                    <p className="text-green-600 text-xs mt-1">
+                      Password lama benar
                     </p>
                   )}
                 </div>
@@ -250,7 +255,7 @@ export default function ProfilePage({ onLogout }) {
                         </li>
                       ))}
                       {valid && (
-                        <li className="text-green-600">✅ Password kuat</li>
+                        <li className="text-green-600 text-xs mt-1">✅ Password kuat</li>
                       )}
                     </ul>
                   )}
@@ -287,8 +292,13 @@ export default function ProfilePage({ onLogout }) {
                     )}
                   </button>
                   {!passwordsMatch && passwordForm.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-500 text-xs mt-1">
                       Password baru dan konfirmasi tidak sama
+                    </p>
+                  )}
+                  {passwordsMatch && passwordForm.confirmPassword && (
+                    <p className="text-green-600 text-xs mt-1">
+                      Password cocok
                     </p>
                   )}
                 </div>

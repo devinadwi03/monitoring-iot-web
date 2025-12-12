@@ -168,6 +168,7 @@ export default function DashboardPage() {
                 api_key={d.api_key}
                 created_at={d.created_at}
                 updated_at={d.updated_at}
+                device_type_id={d.device_type_id}
                 role={user?.role} // 🔹 kirim role ke card
                 onClick={() => navigate(`/device/${d.id}`)}
                 onEdit={handleEdit}

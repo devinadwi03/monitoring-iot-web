@@ -63,12 +63,15 @@ class DeviceController extends Controller
             'name' => 'sometimes|string',
             'location' => 'sometimes|string',
             'serial_number' => 'sometimes|string',
+            'device_type_id' => 'sometimes|exists:device_types,id',
         ]);
 
         $device->update([
             'name' => $validated['name'] ?? $device->name,
             'location' => $validated['location'] ?? $device->location,
             'serial_number' => $validated['serial_number'] ?? $device->serial_number,
+            'device_type_id' => $validated['device_type_id'],
+
         ]);
 
         return response()->json($device);

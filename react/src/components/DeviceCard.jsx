@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { ClipboardIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import EditSettingsModal from "./EditSettingsModal";
+import { getDeviceTypes } from "../api/deviceType";
 import toast from "react-hot-toast";
 
 export default function DeviceCard({
@@ -17,6 +18,7 @@ export default function DeviceCard({
   api_key,
   created_at,
   updated_at,
+  device_type_id,
   role,
   onClick,
   onEdit,
@@ -27,7 +29,21 @@ export default function DeviceCard({
   const [editName, setEditName] = useState(name);
   const [editSerial, setEditSerial] = useState(serial_number);
   const [editLocation, setEditLocation] = useState(location);
+  const [deviceTypes, setDeviceTypes] = useState([]);
+  const [editTypeId, setEditTypeId] = useState("");
+
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getDeviceTypes();
+        setDeviceTypes(res.data || res);
+      } catch (err) {
+        toast.error("Gagal memuat device type");
+      }
+    })();
+  }, []);
 
   // sync state dengan props ketika masuk mode edit
   useEffect(() => {
@@ -35,14 +51,16 @@ export default function DeviceCard({
       setEditName(name);
       setEditSerial(serial_number);
       setEditLocation(location);
+      setEditTypeId(device_type_id);
     }
-  }, [isEditing, name, serial_number, location]);
+  }, [isEditing, name, serial_number, location, device_type_id]);
 
   const handleSave = () => {
     onEdit(id, {
       name: editName,
       serial_number: editSerial,
       location: editLocation,
+      device_type_id: editTypeId,
     });
     setIsEditing(false);
   };
@@ -184,6 +202,18 @@ export default function DeviceCard({
             className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="Lokasi"
           />
+          <select
+            value={editTypeId}
+            onChange={(e) => setEditTypeId(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <option value="">-- Pilih Device Type --</option>
+            {deviceTypes.map((dt) => (
+              <option key={dt.id} value={dt.id}>
+                {dt.name}
+              </option>
+            ))}
+          </select>
 
           <div className="flex justify-end gap-2 mt-1">
             <button
