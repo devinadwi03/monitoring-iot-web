@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createDevice } from "../api/device";
 import { getDeviceTypes } from "../api/deviceType";
 import { createDeviceSetting } from "../api/deviceSettings";
+import { uploadDeviceImage } from "../api/deviceImages";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -15,6 +16,10 @@ export default function AddDevicePage() {
 
   const [settingsSchema, setSettingsSchema] = useState([]);
   const [settingsValues, setSettingsValues] = useState({}); // dynamic values
+
+  // images = [{ file, preview, description }] multiple
+  const [images, setImages] = useState([]);
+  const [thumbnailIndex, setThumbnailIndex] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -54,6 +59,32 @@ export default function AddDevicePage() {
     }));
   };
 
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    const mapped = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      description: "",
+    }));
+
+    setImages((prev) => [...prev, ...mapped]); // ← MENAMBAHKAN KE ARRAY
+  };
+
+  const handleDescriptionChange = (index, value) => {
+    setImages((prev) =>
+      prev.map((img, i) => (i === index ? { ...img, description: value } : img))
+    );
+  };
+  const handleRemoveImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+
+    // kalau yang dihapus itu thumbnail → reset thumbnailIndex
+    if (thumbnailIndex === index) {
+      setThumbnailIndex(null);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -83,6 +114,18 @@ export default function AddDevicePage() {
           key: key, // ← ini benar
           value: settingsValues[key],
         });
+      }
+
+      // STEP 3: Upload gambar
+      if (images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+          await uploadDeviceImage(
+            deviceId,
+            images[i].file,
+            thumbnailIndex === i,
+            images[i].description
+          );
+        }
       }
 
       toast.success("Device & settings berhasil disimpan!");
@@ -130,6 +173,75 @@ export default function AddDevicePage() {
               onChange={(e) => setDeviceLocation(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
             />
+
+            {/* IMAGE UPLOAD */}
+            <div className="bg-white p-4 shadow rounded-md">
+              <h3 className="font-semibold mb-2">Upload Gambar Device</h3>
+
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                className="border p-2 rounded-md w-full"
+              />
+
+              {/* Preview */}
+              {images.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mt-4">
+                  {images.map((img, index) => (
+                    <div
+                      key={index}
+                      className={`border p-2 rounded relative ${
+                        thumbnailIndex === index ? "ring-2 ring-blue-500" : ""
+                      }`}
+                    >
+                      {/* DELETE BUTTON */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"
+                      >
+                        ✕
+                      </button>
+
+                      {/* PREVIEW GAMBAR */}
+                      <img
+                        src={img.preview}
+                        alt={`Preview-${index}`}
+                        className="w-full h-24 object-cover rounded"
+                      />
+
+                      {/* INPUT DESCRIPTION */}
+                      <input
+                        type="text"
+                        placeholder="Keterangan gambar..."
+                        value={img.description}
+                        onChange={(e) =>
+                          handleDescriptionChange(index, e.target.value)
+                        }
+                        className="w-full mt-2 px-2 py-1 border text-sm rounded"
+                      />
+
+                      {/* THUMBNAIL BUTTON */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setThumbnailIndex(
+                            thumbnailIndex === index ? null : index
+                          )
+                        }
+                        className="mt-2 w-full text-sm bg-blue-500 text-white py-1 rounded"
+                      >
+                        {thumbnailIndex === index
+                          ? "Batalkan Thumbnail"
+                          : "Jadikan Thumbnail"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* DEVICE TYPE DROPDOWN */}
             <select

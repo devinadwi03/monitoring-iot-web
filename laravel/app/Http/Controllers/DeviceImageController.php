@@ -6,7 +6,8 @@ use App\Models\Device;
 use App\Models\DeviceImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class DeviceImageController extends Controller
 {
@@ -28,39 +29,37 @@ class DeviceImageController extends Controller
     public function store(Request $request, $device_id)
     {
         $request->validate([
-            'image' => 'required|image|max:2048', // max 2MB
+            'image' => 'required|image|max:2048',
             'is_thumbnail' => 'boolean',
             'description' => 'nullable|string',
         ]);
 
         $device = Device::findOrFail($device_id);
 
-        // Pastikan folder per device ada
         $folder = 'public/device_images/device_' . $device_id;
         if (!Storage::exists($folder)) {
             Storage::makeDirectory($folder);
         }
 
-        // Handle file upload & compress
         $file = $request->file('image');
         $filename = time() . '.' . $file->getClientOriginalExtension();
         $path = storage_path('app/' . $folder . '/' . $filename);
 
-        $img = Image::make($file->getRealPath());
-        $img->resize(1200, null, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
-        $img->save($path, 75); // kualitas 75% => kompresi
+        // ⬇️ INIT IMAGE MANAGER (WAJIB di Intervention v3)
+        $manager = new ImageManager(new Driver());
 
-        // Reset thumbnail lama jika diperlukan
+        // ⬇️ READ, RESIZE, COMPRESS
+        $img = $manager->read($file->getRealPath());
+        $img->scale(width: 1200); // resize tanpa merusak aspect ratio
+        $img->save($path, quality: 75);
+
+        // Reset thumbnail lama
         if ($request->is_thumbnail) {
             $device->images()->update(['is_thumbnail' => false]);
         }
 
-        // Simpan ke database
         $image = $device->images()->create([
-            'image_path' => 'storage/device_images/device_' . $device_id . '/' . $filename, // path publik
+            'image_path' => 'storage/device_images/device_' . $device_id . '/' . $filename,
             'is_thumbnail' => $request->is_thumbnail ?? false,
             'description' => $request->description,
         ]);
@@ -80,10 +79,13 @@ class DeviceImageController extends Controller
         $image = DeviceImage::findOrFail($id);
         $device = $image->device;
 
-        // Upload file baru jika ada
+        // ⬇️ INIT MANAGER WAJIB
+        $manager = new ImageManager(new Driver());
+
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $folder = 'public/device_images/device_' . $device->id;
+
             if (!Storage::exists($folder)) {
                 Storage::makeDirectory($folder);
             }
@@ -91,16 +93,15 @@ class DeviceImageController extends Controller
             $filename = time() . '.' . $file->getClientOriginalExtension();
             $path = storage_path('app/' . $folder . '/' . $filename);
 
-            $img = Image::make($file->getRealPath());
-            $img->resize(1200, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-            $img->save($path, 75);
+            // ⬇️ RESIZE + SAVE versi baruuu
+            $img = $manager->read($file->getRealPath());
+            $img->scale(width: 1200);
+            $img->save($path, quality: 75);
 
             // Hapus file lama
-            if (Storage::exists('public/device_images/device_'.$device->id.'/'.basename($image->image_path))) {
-                Storage::delete('public/device_images/device_'.$device->id.'/'.basename($image->image_path));
+            $oldPath = 'public/device_images/device_'.$device->id.'/'.basename($image->image_path);
+            if (Storage::exists($oldPath)) {
+                Storage::delete($oldPath);
             }
 
             $image->image_path = 'storage/device_images/device_' . $device->id . '/' . $filename;
