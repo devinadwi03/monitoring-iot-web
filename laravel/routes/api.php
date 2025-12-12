@@ -5,6 +5,7 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\SensorDataController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\DeviceImageController;
 use App\Http\Controllers\ProvisioningController;
 use App\Http\Controllers\DeviceTypeController;
 use App\Http\Controllers\DeviceSettingsController;
@@ -62,6 +63,11 @@ Route::middleware('jwt')->group(function() {
     Route::get('device-types', [DeviceTypeController::class, 'index']);
     Route::get('device-types/{id}', [DeviceTypeController::class, 'show']);
 
+    // Ambil semua gambar device
+    Route::get('/devices/{device_id}/images', [DeviceImageController::class, 'index']);
+    // Ambil thumbnail
+    Route::get('/devices/{device_id}/images/thumbnail', [DeviceImageController::class, 'thumbnail']);
+
     // 🔹 Devices CRUD
     Route::get('/devices', [DeviceController::class,'index']);
     Route::get('/devices/{device}', [DeviceController::class,'show']);
@@ -90,11 +96,15 @@ Route::middleware(['jwt', 'isAdmin'])->group(function () {
     Route::put('device-types/{id}', [DeviceTypeController::class, 'update']);
     Route::delete('device-types/{id}', [DeviceTypeController::class, 'destroy']);
 
-    //Route Device
+    // Route Device
     Route::post('/devices', [DeviceController::class,'store']);
     Route::put('/devices/{device}', [DeviceController::class, 'update']);
     Route::delete('/devices/{device}', [DeviceController::class, 'destroy']);
 
+    // Route Device Images
+    Route::post('/devices/{device_id}/images', [DeviceImageController::class, 'store']);
+    Route::put('/images/{id}', [DeviceImageController::class, 'update']);
+    Route::delete('/images/{id}', [DeviceImageController::class, 'destroy']);
 
 });
 
