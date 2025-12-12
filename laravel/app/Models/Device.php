@@ -41,5 +41,18 @@ class Device extends Model
         return $this->belongsTo(DeviceType::class, 'device_type_id');
     }
 
+    // Relasi ke tabel images
+    public function images()
+    {
+        return $this->hasMany(DeviceImage::class);
+    }
+
+    // Thumbnail
+    public function thumbnail()
+    {
+        return $this->hasOne(DeviceImage::class)->where('is_thumbnail', true);
+    }
+
+
 
 }
