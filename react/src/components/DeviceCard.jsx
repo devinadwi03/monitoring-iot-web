@@ -8,6 +8,7 @@ import {
 import { ClipboardIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import EditSettingsModal from "./EditSettingsModal";
 import { getDeviceTypes } from "../api/deviceType";
+import { getDeviceThumbnail } from "../api/deviceImages";
 import toast from "react-hot-toast";
 
 export default function DeviceCard({
@@ -31,6 +32,8 @@ export default function DeviceCard({
   const [editLocation, setEditLocation] = useState(location);
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [editTypeId, setEditTypeId] = useState("");
+  const [thumbnail, setThumbnail] = useState(null);
+  const BASE_URL = "http://localhost:8000";
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -55,6 +58,21 @@ export default function DeviceCard({
     }
   }, [isEditing, name, serial_number, location, device_type_id]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getDeviceThumbnail(id);
+
+        // backend harus return path atau object
+        const thumbPath = res.data?.image_path || null;
+
+        setThumbnail(thumbPath);
+      } catch (err) {
+        console.error("Gagal load thumbnail:", err);
+      }
+    })();
+  }, [id]);
+
   const handleSave = () => {
     onEdit(id, {
       name: editName,
@@ -70,6 +88,14 @@ export default function DeviceCard({
       {!isEditing ? (
         <>
           <div onClick={onClick} className="space-y-1 overflow-hidden">
+            {thumbnail && (
+              <img
+                src={`${BASE_URL}/${thumbnail}`}
+                alt="Thumbnail"
+                className="w-full h-32 object-cover rounded-lg mb-3"
+              />
+            )}
+
             <h2 className="text-lg font-bold text-indigo-600 truncate">
               {name}
             </h2>

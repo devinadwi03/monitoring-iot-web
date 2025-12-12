@@ -42,18 +42,22 @@ class DeviceImageController extends Controller
         }
 
         $file = $request->file('image');
-        $filename = time() . '.' . $file->getClientOriginalExtension();
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // ⬇️ Force JPG output
+        $filename = time() . '.jpg';
         $path = storage_path('app/' . $folder . '/' . $filename);
 
-        // ⬇️ INIT IMAGE MANAGER (WAJIB di Intervention v3)
+        // ⬇️ INIT IMAGE MANAGER v3
         $manager = new ImageManager(new Driver());
 
-        // ⬇️ READ, RESIZE, COMPRESS
+        // ⬇️ READ, RESIZE, CONVERT TO JPG
         $img = $manager->read($file->getRealPath());
-        $img->scale(width: 1200); // resize tanpa merusak aspect ratio
-        $img->save($path, quality: 75);
+        $img->scale(width: 1200); // maintain aspect ratio
+        $img->encode('jpg', quality: 75); // force JPG, compress
+        $img->save($path);
 
-        // Reset thumbnail lama
+        // Reset thumbnail lama jika perlu
         if ($request->is_thumbnail) {
             $device->images()->update(['is_thumbnail' => false]);
         }
@@ -66,7 +70,6 @@ class DeviceImageController extends Controller
 
         return response()->json($image, 201);
     }
-
     // Update gambar
     public function update(Request $request, $id)
     {
@@ -79,31 +82,40 @@ class DeviceImageController extends Controller
         $image = DeviceImage::findOrFail($id);
         $device = $image->device;
 
-        // ⬇️ INIT MANAGER WAJIB
+        // INIT manager (Wajib Intervention 3)
         $manager = new ImageManager(new Driver());
 
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $folder = 'public/device_images/device_' . $device->id;
 
+            // ============================
+            // 🔥 UPDATED: FORCE JPG OUTPUT
+            // ============================
+            $filename = time() . '.jpg';  // <— aslinya pakai ekstensi asli, sekarang fix .jpg
+
+            $folder = 'public/device_images/device_' . $device->id;
             if (!Storage::exists($folder)) {
                 Storage::makeDirectory($folder);
             }
 
-            $filename = time() . '.' . $file->getClientOriginalExtension();
             $path = storage_path('app/' . $folder . '/' . $filename);
 
-            // ⬇️ RESIZE + SAVE versi baruuu
-            $img = $manager->read($file->getRealPath());
-            $img->scale(width: 1200);
-            $img->save($path, quality: 75);
+            // ============================
+            // 🔥 UPDATED: CONVERT → JPG
+            // ============================
+            $img = $manager->read($request->file('image')->getRealPath());
+            $img->scale(width: 1200);              // resize
+            $img->encode('jpg', quality: 75);      // <— force convert + compress JPG
+            $img->save($path);
 
-            // Hapus file lama
-            $oldPath = 'public/device_images/device_'.$device->id.'/'.basename($image->image_path);
+            // ============================
+            // 🔥 UPDATED: Hapus file lama
+            // ============================
+            $oldPath = 'public/device_images/device_' . $device->id . '/' . basename($image->image_path);
             if (Storage::exists($oldPath)) {
                 Storage::delete($oldPath);
             }
 
+            // Simpan path baru
             $image->image_path = 'storage/device_images/device_' . $device->id . '/' . $filename;
         }
 
