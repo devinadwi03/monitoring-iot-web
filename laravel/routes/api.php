@@ -103,7 +103,9 @@ Route::middleware(['jwt', 'isAdmin'])->group(function () {
 
     // Route Device Images
     Route::post('/devices/{device_id}/images', [DeviceImageController::class, 'store']);
-    Route::put('/images/{id}', [DeviceImageController::class, 'update']);
+    Route::post('/images/{id}/file', [DeviceImageController::class, 'updateFile']);
+    Route::patch('/images/{id}/thumbnail', [DeviceImageController::class, 'setThumbnail']);
+    Route::patch('/images/{id}', [DeviceImageController::class, 'updateDescription']);
     Route::delete('/images/{id}', [DeviceImageController::class, 'destroy']);
 
 });

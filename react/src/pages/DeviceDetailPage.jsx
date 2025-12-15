@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DeviceInfo from "../components/DeviceInfo";
 import DeviceSettings from "../components/DeviceSettings";
+import DeviceImages from "../components/DeviceImages";
 
 // Dashboard each Device
 import TorenDashboard from "./Devices/MonitoringToren/TorenDashboard";
@@ -68,6 +69,9 @@ export default function DeviceDetailPage() {
       {/* INFO & SETTINGS GLOBAL */}
       <DeviceInfo device={device} deviceType={deviceType} role={role} />
       <DeviceSettings settings={settings} />
+
+      {/* 🔹 GALERI GAMBAR DEVICE */}
+      <DeviceImages deviceId={deviceId} role={role} />
 
       {/* SWITCH untuk tipe device */}
       {(() => {

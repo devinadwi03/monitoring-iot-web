@@ -24,21 +24,24 @@ export const uploadDeviceImage = async (deviceId, file, isThumbnail = false, des
   });
 };
 
-// Update gambar (ADMIN)
-export const updateDeviceImage = async (imageId, data) => {
+// Update File
+export const updateDeviceImageFile = async (imageId, file) => {
   const formData = new FormData();
+  formData.append("image", file);
 
-  if (data.file) formData.append("image", data.file);
-  if (data.is_thumbnail !== undefined)
-    formData.append("is_thumbnail", data.is_thumbnail ? 1 : 0);
-  if (data.description !== undefined)
-    formData.append("description", data.description);
-
-  return await api.put(`/images/${imageId}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+  return api.post(`/images/${imageId}/file`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
+};
+
+// Update Thumbnail
+export const setDeviceImageThumbnail = async (imageId) => {
+  return api.patch(`/images/${imageId}/thumbnail`);
+};
+
+// Update ImageDescription
+export const updateDeviceImageDescription = async (imageId, description) => {
+  return api.patch(`/images/${imageId}`, { description });
 };
 
 // Hapus gambar (ADMIN)

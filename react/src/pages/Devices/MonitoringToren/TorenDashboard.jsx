@@ -193,7 +193,7 @@ export default function TorenDashboard({ device, role }) {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 20000);
+    const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
   }, [deviceId, torenConst]);
 

@@ -17,7 +17,7 @@ export default function TorenSensorCard({ title, value, status }) {
     "Volume Air": <CubeIcon className="w-5 h-5 inline-block mr-1" />,
     "Terakhir Update": <ClockIcon className="w-5 h-5 inline-block mr-1" />,
     "Status Sensor":
-      status === "OK" ? (
+      status === "Online" ? (
         <CheckCircleIcon className="w-5 h-5 inline-block mr-1 text-green-500" />
       ) : (
         <XCircleIcon className="w-5 h-5 inline-block mr-1 text-red-500" />

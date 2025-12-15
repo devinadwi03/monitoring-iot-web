@@ -69,13 +69,10 @@ class DeviceImageController extends Controller
 
         return response()->json($image, 201);
     }
-    // Update gambar
-    public function update(Request $request, $id)
+    public function updateFile(Request $request, $id)
     {
         $request->validate([
-            'image' => 'sometimes|image|max:2048',
-            'is_thumbnail' => 'sometimes|boolean',
-            'description' => 'nullable|string',
+            'image' => 'required|image|max:2048',
         ]);
 
         $image = DeviceImage::findOrFail($id);
@@ -118,15 +115,29 @@ class DeviceImageController extends Controller
             $image->image_path = 'storage/device_images/device_' . $device->id . '/' . $filename;
         }
 
-        // Reset thumbnail lama jika perlu
-        if ($request->has('is_thumbnail') && $request->is_thumbnail) {
-            $device->images()->update(['is_thumbnail' => false]);
-        }
+        return response()->json($image);
+    }
 
-        $image->is_thumbnail = $request->is_thumbnail ?? $image->is_thumbnail;
-        $image->description = $request->description ?? $image->description;
+    public function setThumbnail($id)
+    {
+        $image = DeviceImage::findOrFail($id);
 
-        $image->save();
+        DeviceImage::where('device_id', $image->device_id)
+            ->update(['is_thumbnail' => 0]);
+
+        $image->update(['is_thumbnail' => 1]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function updateDescription(Request $request, $id)
+    {
+        $request->validate([
+            'description' => 'nullable|string',
+        ]);
+
+        $image = DeviceImage::findOrFail($id);
+        $image->update($request->only('description'));
 
         return response()->json($image);
     }
@@ -135,14 +146,27 @@ class DeviceImageController extends Controller
     public function destroy($id)
     {
         $image = DeviceImage::findOrFail($id);
-        $device = $image->device;
+        $deviceId = $image->device_id;
+        $wasThumbnail = $image->is_thumbnail;
 
         // Hapus file fisik
-        if (Storage::exists('public/device_images/device_'.$device->id.'/'.basename($image->image_path))) {
-            Storage::delete('public/device_images/device_'.$device->id.'/'.basename($image->image_path));
+        if (Storage::exists('public/device_images/device_'.$deviceId.'/'.basename($image->image_path))) {
+            Storage::delete('public/device_images/device_'.$deviceId.'/'.basename($image->image_path));
         }
 
         $image->delete();
+
+        // 🔥 Jika yang dihapus adalah thumbnail
+        if ($wasThumbnail) {
+
+            $newThumbnail = DeviceImage::where('device_id', $deviceId)
+                ->orderBy('id')
+                ->first();
+
+            if ($newThumbnail) {
+                $newThumbnail->update(['is_thumbnail' => 1]);
+            }
+        }
 
         return response()->json(['message' => 'Image deleted successfully']);
     }
