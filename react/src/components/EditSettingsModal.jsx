@@ -13,15 +13,9 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose, role }) {
 
   const [originalSettings, setOriginalSettings] = useState([]);
 
-  // Drag state
-  const [position, setPosition] = useState({ top: "35%", left: "35%" });
-  const [dragging, setDragging] = useState(false);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-
   // Load settings device
   useEffect(() => {
     if (!isOpen || !deviceId) return;
-    setPosition({ top: "35%", left: "35%" });
     const fetchSettings = async () => {
       try {
         setLoading(true);
@@ -75,44 +69,13 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose, role }) {
     }
   };
 
-  // Drag events
-  const startDrag = (e) => {
-    e.preventDefault();
-    setDragging(true);
-    const rect = e.currentTarget.parentNode.getBoundingClientRect();
-    setOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setPosition({ top: rect.top, left: rect.left });
-  };
-
-  const onDrag = (e) => {
-    if (!dragging) return;
-    setPosition({ top: e.clientY - offset.y, left: e.clientX - offset.x });
-  };
-
-  const stopDrag = () => setDragging(false);
-
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div
-      className="fixed inset-0 z-50 bg-black/40 flex items-start justify-start"
-      onMouseMove={onDrag}
-      onMouseUp={stopDrag}
-      onMouseLeave={stopDrag}
-    >
-      <div
-        className="bg-white rounded-xl p-6 w-96 max-h-[80vh] overflow-y-auto shadow-lg animate-fadeIn absolute"
-        style={{
-          top: position.top,
-          left: position.left,
-          position: "absolute",
-        }}
-      >
-        {/* Modal header: drag handle */}
-        <div
-          className="cursor-move mb-4 flex justify-between items-center"
-          onMouseDown={startDrag}
-        >
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto shadow-lg animate-fadeIn">
+        {/* Modal header */}
+        <div className="mb-4 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-800">
             Settings Device
           </h2>

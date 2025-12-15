@@ -5,7 +5,7 @@ import {
   CheckIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import { ClipboardIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ClipboardIcon, ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import EditSettingsModal from "./EditSettingsModal";
 import { getDeviceTypes } from "../api/deviceType";
 import { getDeviceThumbnail } from "../api/deviceImages";
@@ -87,121 +87,133 @@ export default function DeviceCard({
     <div className="bg-white shadow-md rounded-2xl p-4 relative transition-transform transform hover:scale-105 hover:shadow-xl cursor-pointer break-words">
       {!isEditing ? (
         <>
-          <div onClick={onClick} className="space-y-1 overflow-hidden">
-            {thumbnail && (
-              <img
-                src={`${BASE_URL}/${thumbnail}`}
-                alt="Thumbnail"
-                className="w-full h-32 object-cover rounded-lg mb-3"
-              />
-            )}
-
-            <h2 className="text-lg font-bold text-indigo-600 truncate">
-              {name}
-            </h2>
-            <p className="text-gray-500 text-sm truncate">
-              SN: {serial_number}
-            </p>
-            <p className="text-gray-500 text-sm truncate">{location}</p>
-
-            {/* Field tambahan khusus untuk admin */}
-            {role === "admin" && (
-              <div className="mt-3 border-t border-gray-200 pt-2 space-y-1 text-xs text-gray-600 overflow-hidden">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="truncate flex-1">
-                    <span className="font-semibold text-gray-700">
-                      API Key:
-                    </span>{" "}
-                    <span className="break-all">{api_key || "-"}</span>
-                  </p>
-
-                  {/* Tombol aksi di samping API key */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    {/* Tombol salin API Key */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (api_key) {
-                          navigator.clipboard.writeText(api_key);
-                          toast.success("API Key disalin!");
-                        } else {
-                          toast.error("Tidak ada API Key untuk disalin");
-                        }
-                      }}
-                      className="text-blue-600 hover:text-blue-800 transition"
-                      title="Salin API Key"
-                    >
-                      <ClipboardIcon className="w-4 h-4 inline-block" />
-                    </button>
-                    {/* Tombol regenerate */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRegenerate?.();
-                      }}
-                      className="text-yellow-600 hover:text-yellow-800 transition"
-                      title="Generate ulang API Key"
-                    >
-                      <ArrowPathIcon className="w-4 h-4 inline-block" />
-                    </button>
-                  </div>
+          <div
+            onClick={onClick}
+            className="flex gap-4 items-start overflow-hidden"
+          >
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              {thumbnail ? (
+                <img
+                  src={`${BASE_URL}/${thumbnail}`}
+                  alt="Thumbnail"
+                  className="w-28 h-28 object-cover rounded-xl border"
+                />
+              ) : (
+                <div className="w-28 h-28 bg-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-400 border">
+                  No Image
                 </div>
+              )}
 
-                <p>
-                  <span className="font-semibold text-gray-700">
-                    Created at:
-                  </span>{" "}
-                  {created_at
-                    ? new Date(created_at).toLocaleString("id-ID")
-                    : "-"}
-                </p>
-                <p>
-                  <span className="font-semibold text-gray-700">
-                    Updated at:
-                  </span>{" "}
-                  {updated_at
-                    ? new Date(updated_at).toLocaleString("id-ID")
-                    : "-"}
-                </p>
+              {/* TOMBOL AKSI */}
+              <div className="flex gap-2">
+                {role === "admin" && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditing(true);
+                      }}
+                      className="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200"
+                    >
+                      <PencilIcon className="h-4 w-4 text-yellow-600" />
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      className="p-2 rounded-full bg-red-100 hover:bg-red-200"
+                    >
+                      <TrashIcon className="h-4 w-4 text-red-600" />
+                    </button>
+                  </>
+                )}
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setModalOpen(true);
+                  }}
+                  className="p-2 rounded-full bg-blue-100 hover:bg-blue-200"
+                  title="Edit Settings"
+                >
+                  <Cog6ToothIcon className="w-5 h-5 text-blue-600" />
+                </button>
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Tombol aksi */}
-          <div className="absolute top-3 right-3 flex gap-2">
-            {role === "admin" && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditing(true);
-                  }}
-                  className="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 transition"
-                >
-                  <PencilIcon className="h-5 w-5 text-yellow-600" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete();
-                  }}
-                  className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition"
-                >
-                  <TrashIcon className="h-5 w-5 text-red-600" />
-                </button>
-              </>
-            )}
-            {/* Tombol Edit Settings */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setModalOpen(true);
-              }}
-              className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition"
-              title="Edit Settings"
-            >
-              ⚙️
-            </button>
+            <div className="flex-1 min-w-0 space-y-1 overflow-hidden">
+              <h2 className="text-lg font-bold text-indigo-600 truncate">
+                {name}
+              </h2>
+              <p className="text-gray-500 text-sm truncate">
+                SN: {serial_number}
+              </p>
+              <p className="text-gray-500 text-sm truncate">{location}</p>
+
+              {/* Field tambahan khusus untuk admin */}
+              {role === "admin" && (
+                <div className="mt-3 border-t border-gray-200 pt-2 space-y-1 text-xs text-gray-600 overflow-hidden">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate flex-1">
+                      <span className="font-semibold text-gray-700">
+                        API Key:
+                      </span>{" "}
+                      <span className="break-all">{api_key || "-"}</span>
+                    </p>
+
+                    {/* Tombol aksi di samping API key */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {/* Tombol salin API Key */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (api_key) {
+                            navigator.clipboard.writeText(api_key);
+                            toast.success("API Key disalin!");
+                          } else {
+                            toast.error("Tidak ada API Key untuk disalin");
+                          }
+                        }}
+                        className="text-blue-600 hover:text-blue-800 transition"
+                        title="Salin API Key"
+                      >
+                        <ClipboardIcon className="w-4 h-4 inline-block" />
+                      </button>
+                      {/* Tombol regenerate */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRegenerate?.();
+                        }}
+                        className="text-yellow-600 hover:text-yellow-800 transition"
+                        title="Generate ulang API Key"
+                      >
+                        <ArrowPathIcon className="w-4 h-4 inline-block" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p>
+                    <span className="font-semibold text-gray-700">
+                      Created at:
+                    </span>{" "}
+                    {created_at
+                      ? new Date(created_at).toLocaleString("id-ID")
+                      : "-"}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-gray-700">
+                      Updated at:
+                    </span>{" "}
+                    {updated_at
+                      ? new Date(updated_at).toLocaleString("id-ID")
+                      : "-"}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </>
       ) : (
