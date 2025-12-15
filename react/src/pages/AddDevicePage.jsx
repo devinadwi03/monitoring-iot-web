@@ -59,16 +59,50 @@ export default function AddDevicePage() {
     }));
   };
 
+  const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
 
-    const mapped = files.map((file) => ({
+    const validFiles = [];
+    const rejectedFiles = [];
+
+    files.forEach((file) => {
+      if (file.size > MAX_SIZE) {
+        rejectedFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (rejectedFiles.length > 0) {
+      toast.error(
+        `File terlalu besar (maks 2 MB): ${rejectedFiles.join(", ")}`,
+        { duration: 4000 }
+      );
+    }
+
+    if (validFiles.length === 0) return;
+
+    const newImages = validFiles.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
       description: "",
     }));
 
-    setImages((prev) => [...prev, ...mapped]); // ← MENAMBAHKAN KE ARRAY
+    setImages((prev) => {
+      const updated = [...prev, ...newImages];
+
+      // thumbnail otomatis hanya saat sebelumnya belum ada gambar
+      if (prev.length === 0 && updated.length > 0) {
+        setThumbnailIndex(0);
+      }
+
+      return updated;
+    });
+
+    // reset input biar bisa upload ulang file yg sama
+    e.target.value = "";
   };
 
   const handleDescriptionChange = (index, value) => {
@@ -77,12 +111,24 @@ export default function AddDevicePage() {
     );
   };
   const handleRemoveImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImages((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
 
-    // kalau yang dihapus itu thumbnail → reset thumbnailIndex
-    if (thumbnailIndex === index) {
-      setThumbnailIndex(null);
-    }
+      // ✅ JIKA THUMBNAIL DIHAPUS
+      if (thumbnailIndex === index) {
+        if (updated.length > 0) {
+          setThumbnailIndex(0); // pindah ke gambar pertama
+        } else {
+          setThumbnailIndex(null);
+        }
+      }
+      // geser index thumbnail jika perlu
+      else if (thumbnailIndex > index) {
+        setThumbnailIndex(thumbnailIndex - 1);
+      }
+
+      return updated;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -118,6 +164,12 @@ export default function AddDevicePage() {
 
       // STEP 3: Upload gambar
       if (images.length > 0) {
+        // 🔴 VALIDASI WAJIB ADA THUMBNAIL
+        if (thumbnailIndex === null) {
+          toast.error("Harus ada satu gambar sebagai thumbnail");
+          return;
+        }
+
         for (let i = 0; i < images.length; i++) {
           await uploadDeviceImage(
             deviceId,
@@ -128,7 +180,7 @@ export default function AddDevicePage() {
         }
       }
 
-      toast.success("Device & settings berhasil disimpan!");
+      toast.success("Device berhasil ditambahkan");
       navigate("/");
     } catch (err) {
       console.error(err);
@@ -226,15 +278,15 @@ export default function AddDevicePage() {
                       {/* THUMBNAIL BUTTON */}
                       <button
                         type="button"
-                        onClick={() =>
-                          setThumbnailIndex(
-                            thumbnailIndex === index ? null : index
-                          )
-                        }
-                        className="mt-2 w-full text-sm bg-blue-500 text-white py-1 rounded"
+                        onClick={() => setThumbnailIndex(index)}
+                        className={`mt-2 w-full text-sm py-1 rounded ${
+                          thumbnailIndex === index
+                            ? "bg-green-600 text-white"
+                            : "bg-blue-500 text-white"
+                        }`}
                       >
                         {thumbnailIndex === index
-                          ? "Batalkan Thumbnail"
+                          ? "Thumbnail"
                           : "Jadikan Thumbnail"}
                       </button>
                     </div>
