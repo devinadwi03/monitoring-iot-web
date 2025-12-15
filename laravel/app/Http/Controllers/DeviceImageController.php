@@ -54,8 +54,7 @@ class DeviceImageController extends Controller
         // ⬇️ READ, RESIZE, CONVERT TO JPG
         $img = $manager->read($file->getRealPath());
         $img->scale(width: 1200); // maintain aspect ratio
-        $img->encode('jpg', quality: 75); // force JPG, compress
-        $img->save($path);
+        $img->save($path, quality: 75);
 
         // Reset thumbnail lama jika perlu
         if ($request->is_thumbnail) {

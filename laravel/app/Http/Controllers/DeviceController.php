@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Device;
+use Illuminate\Support\Facades\Storage;
 
 class DeviceController extends Controller
 {
@@ -77,11 +78,32 @@ class DeviceController extends Controller
         return response()->json($device);
     }
 
-    // Hapus device
     public function destroy(Device $device)
     {
+        // ============================
+        // 🔥 HAPUS SEMUA FILE GAMBAR
+        // ============================
+        $folder = 'public/device_images/device_' . $device->id;
+
+        if (Storage::exists($folder)) {
+            Storage::deleteDirectory($folder);
+        }
+
+        // ============================
+        // 🔥 HAPUS DATA DATABASE
+        // ============================
+        // (device_images ikut terhapus kalau pakai cascade,
+        // kalau belum, hapus manual)
+        $device->images()->delete();
+
+        // ============================
+        // 🔥 HAPUS DEVICE
+        // ============================
         $device->delete();
-        return response()->json(['message' => 'Device deleted']);
+
+        return response()->json([
+            'message' => 'Device dan seluruh gambar berhasil dihapus'
+        ]);
     }
 
     public function regenerateApiKey(Device $device)
