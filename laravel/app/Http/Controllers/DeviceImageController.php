@@ -56,19 +56,30 @@ class DeviceImageController extends Controller
         $img->scale(width: 1200); // maintain aspect ratio
         $img->save($path, quality: 75);
 
-        // Reset thumbnail lama jika perlu
-        if ($request->is_thumbnail) {
+        // cek apakah device sudah punya thumbnail
+        $hasThumbnail = $device->images()->where('is_thumbnail', true)->exists();
+
+        $shouldBeThumbnail = false;
+
+        // kalau user EXPLICIT minta jadi thumbnail
+        if ($request->boolean('is_thumbnail') === true) {
             $device->images()->update(['is_thumbnail' => false]);
+            $shouldBeThumbnail = true;
+        }
+        // kalau belum ada thumbnail sama sekali → auto set
+        elseif (!$hasThumbnail) {
+            $shouldBeThumbnail = true;
         }
 
         $image = $device->images()->create([
             'image_path' => 'storage/device_images/device_' . $device_id . '/' . $filename,
-            'is_thumbnail' => $request->is_thumbnail ?? false,
+            'is_thumbnail' => $shouldBeThumbnail,
             'description' => $request->description,
         ]);
 
         return response()->json($image, 201);
     }
+
     public function updateFile(Request $request, $id)
     {
         $request->validate([
