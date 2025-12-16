@@ -25,7 +25,14 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(300)->by($request->user()?->id ?: $request->ip());
+        });
+        
+        // 🔹 limiter khusus refresh token
+        RateLimiter::for('refresh', function (Request $request) {
+            return Limit::perMinute(30)->by(
+                $request->cookie('refresh_token') ?: $request->ip()
+            );
         });
 
         $this->routes(function () {

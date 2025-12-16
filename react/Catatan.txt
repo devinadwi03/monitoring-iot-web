@@ -25,5 +25,5 @@ Ide buat web dashboard monitoring iot
 (DONE) ‌* Admin punya pilihan buat nampilin data sensor dalam bentuk tabel dan dashboard visual (untuk keperluan analisa)
 (DONE) * Jadinya klo mau ganti API, admin regenerate API_Key manual
 
-* Tambahin gambar buat thumbnail dan detail2nya (maks upload 2MB tp yg disimpan di server hasil compress)
+(DONE) * Tambahin gambar buat thumbnail dan detail2nya (maks upload 2MB tp yg disimpan di server hasil compress)
 (DONE) * Belum bisa edit tipe device 

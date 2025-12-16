@@ -250,7 +250,7 @@ class AuthController extends Controller
         ]);
 
         // cookie HttpOnly
-        $cookieAccess = cookie('access_token', $accessToken, 5, null, null, false, true, false, 'Strict');
+        $cookieAccess = cookie('access_token', $accessToken, 15, null, null, false, true, false, 'Strict');
         $cookieRefresh = cookie('refresh_token', $refreshToken, $request->rememberMe ? 43200 : 1440, null, null, false, true, false, 'Strict');
         $clearOtp = cookie()->forget('otp_id');
 
@@ -290,7 +290,7 @@ class AuthController extends Controller
 
             // generate access token baru
             $newAccess = \App\Services\JWTService::generateAccessToken($user);
-            $cookieAccess = cookie('access_token', $newAccess, 5, null, null, false, true, false, 'Strict');
+            $cookieAccess = cookie('access_token', $newAccess, 15, null, null, false, true, false, 'Strict');
 
             return response()->json(['message' => 'Token refreshed'])
                             ->cookie($cookieAccess);

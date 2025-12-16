@@ -27,7 +27,8 @@ Route::post('/verify-google', [TwoFactorController::class, 'verifyLogin']);
 //Route::get('/2fa/status', [TwoFactorController::class, 'status']);
 
 // --- JWT Token routes ---
-Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+Route::post('/refresh-token', [AuthController::class, 'refreshToken'])
+    ->middleware('throttle:refresh');
 
 // kirim link reset password
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);

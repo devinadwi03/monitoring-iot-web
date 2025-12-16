@@ -11,39 +11,65 @@ const api = axios.create({
 });
 
 // Response interceptor untuk refresh token
-api.interceptors.response.use(
-  (res) => res,
-  async (err) => {
-    const originalRequest = err.config;
+let isRefreshing = false;
+let failedQueue = [];
 
-    // Jika bukan 401, return error
-    if (err.response?.status !== 401) {
-      return Promise.reject(err);
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
     }
 
-    // Jangan refresh kalau endpoint refresh-token atau login-otp
     if (
       originalRequest.url.includes("/refresh-token") ||
       originalRequest.url.includes("/login-otp")
     ) {
-      return Promise.reject(err);
+      return Promise.reject(error);
     }
 
-    // 🚨 Prevent retry loop
     if (originalRequest._retry) {
-      return Promise.reject(err);
+      return Promise.reject(error);
     }
+
     originalRequest._retry = true;
 
+    // 🔒 kalau refresh sedang jalan → antri
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({
+          resolve: () => resolve(api(originalRequest)),
+          reject,
+        });
+      });
+    }
+
+    isRefreshing = true;
+
     try {
-      // request refresh token
       await api.post("/refresh-token");
 
-      // ulang request sebelumnya
+      processQueue(null);
       return api(originalRequest);
-    } catch (refreshErr) {
-      // redirect ke login kalau refresh token invalid / expired
-      return Promise.reject(refreshErr);
+    } catch (err) {
+      processQueue(err);
+      return Promise.reject(err);
+    } finally {
+      isRefreshing = false;
     }
   }
 );
