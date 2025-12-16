@@ -105,7 +105,7 @@ export default function DeviceImages({ deviceId, role }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-4">
+    <div className="bg-white rounded-2xl shadow p-6 space-y-4">
       <h3 className="text-lg font-semibold mb-4">Gambar Device</h3>
 
       {loading ? (

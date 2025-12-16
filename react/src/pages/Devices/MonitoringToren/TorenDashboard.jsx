@@ -243,10 +243,10 @@ export default function TorenDashboard({ device, role }) {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
+    <div className="space-y-8 px-1 py-6">
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-gray-800">
           Dashboard Monitoring Toren
         </h1>
 
@@ -254,7 +254,7 @@ export default function TorenDashboard({ device, role }) {
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
             <label className="text-sm text-gray-600">Tampilan:</label>
             <select
-              className="border rounded-lg p-2 bg-white text-gray-700 shadow-sm w-full sm:w-auto"
+              className="border rounded-lg p-2 bg-white text-gray-700 shadow-sm w-full text-xs sm:text-sm sm:w-auto"
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value)}
             >

@@ -65,23 +65,32 @@ export default function DeviceDetailPage() {
 
   // 🔥 Render berdasar type device
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
-      {/* INFO & SETTINGS GLOBAL */}
-      <DeviceInfo device={device} deviceType={deviceType} role={role} />
-      <DeviceSettings settings={settings} />
+    <div className="bg-gray-50 min-h-screen py-6">
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
+        {/* HEADER PAGE */}
+        <div>
+          <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center sm:text-left">Detail Device</h2>
+          <p className="text-gray-500 text-sm text-center sm:text-left">
+            Informasi lengkap perangkat dan pengaturannya
+          </p>
+        </div>
+        {/* INFO & SETTINGS GLOBAL */}
+        <DeviceInfo device={device} deviceType={deviceType} role={role} />
+        <DeviceSettings settings={settings} />
 
-      {/* 🔹 GALERI GAMBAR DEVICE */}
-      <DeviceImages deviceId={deviceId} role={role} />
+        {/* 🔹 GALERI GAMBAR DEVICE */}
+        <DeviceImages deviceId={deviceId} role={role} />
 
-      {/* SWITCH untuk tipe device */}
-      {(() => {
-        switch (deviceType.name) {
-          case "Monitoring Toren":
-            return <TorenDashboard device={device} role={role} />;
-          default:
-            return <p>Type belum memiliki tampilan khusus.</p>;
-        }
-      })()}
+        {/* SWITCH untuk tipe device */}
+        {(() => {
+          switch (deviceType.name) {
+            case "Monitoring Toren":
+              return <TorenDashboard device={device} role={role} />;
+            default:
+              return <p>Type belum memiliki tampilan khusus.</p>;
+          }
+        })()}
+      </div>
     </div>
   );
 }

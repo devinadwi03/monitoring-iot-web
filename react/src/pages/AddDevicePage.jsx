@@ -80,6 +80,7 @@ export default function AddDevicePage() {
         `File terlalu besar (maks 2 MB): ${rejectedFiles.join(", ")}`,
         { duration: 4000 }
       );
+      e.target.value = "";
     }
 
     if (validFiles.length === 0) return;
@@ -193,7 +194,7 @@ export default function AddDevicePage() {
   return (
     <div className="bg-gray-50 min-h-screen py-6">
       <div className="p-6 max-w-2xl mx-auto space-y-6">
-        <h2 className="text-3xl font-bold mb-4 text-gray-800">
+        <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center sm:text-left">
           Tambah Device Baru
         </h2>
 
@@ -235,16 +236,21 @@ export default function AddDevicePage() {
                 accept="image/*"
                 multiple
                 onChange={handleImageUpload}
-                className="border p-2 rounded-md w-full"
+                className="block w-full text-sm text-gray-600
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-lg file:border-0
+                  file:text-sm file:font-medium
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
               />
 
               {/* Preview */}
               {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {images.map((img, index) => (
                     <div
                       key={index}
-                      className={`border p-2 rounded relative ${
+                      className={`border p-3 rounded-lg relative bg-white ${
                         thumbnailIndex === index ? "ring-2 ring-blue-500" : ""
                       }`}
                     >
@@ -252,17 +258,19 @@ export default function AddDevicePage() {
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs shadow hover:bg-red-600"
                       >
                         ✕
                       </button>
 
                       {/* PREVIEW GAMBAR */}
-                      <img
-                        src={img.preview}
-                        alt={`Preview-${index}`}
-                        className="w-full h-24 object-cover rounded"
-                      />
+                      <div className="w-full aspect-[4/3] bg-gray-100 rounded-md overflow-hidden">
+                        <img
+                          src={img.preview}
+                          alt={`Preview-${index}`}
+                          className="w-full h-32 sm:h-40 object-cover rounded-md"
+                        />
+                      </div>
 
                       {/* INPUT DESCRIPTION */}
                       <input
@@ -272,7 +280,7 @@ export default function AddDevicePage() {
                         onChange={(e) =>
                           handleDescriptionChange(index, e.target.value)
                         }
-                        className="w-full mt-2 px-2 py-1 border text-sm rounded"
+                        className="w-full mt-3 px-3 py-2 border text-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
 
                       {/* THUMBNAIL BUTTON */}

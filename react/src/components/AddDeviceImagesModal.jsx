@@ -59,16 +59,26 @@ export default function AddDeviceImagesModal({ isOpen, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-auto">
         <h2 className="text-lg font-semibold mb-4">Tambah Gambar Device</h2>
 
         <div className="mb-4">
-          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="block w-full text-sm text-gray-600
+             file:mr-4 file:py-2 file:px-4
+             file:rounded-lg file:border-0
+             file:text-sm file:font-medium
+             file:bg-blue-50 file:text-blue-700
+             hover:file:bg-blue-100"
+          />
         </div>
 
         {preview && (
-          <div className="mb-4 w-full border rounded overflow-hidden flex justify-center bg-gray-100">
+          <div className="mb-4 w-full border rounded-lg overflow-hidden flex justify-center bg-gray-100 p-2">
             <img
               src={preview}
               alt="Preview"
@@ -83,7 +93,8 @@ export default function AddDeviceImagesModal({ isOpen, onClose, onSubmit }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full border rounded px-3 py-2 text-sm"
+            className="w-full border rounded-md px-3 py-2 text-sm
+             focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
 
@@ -99,16 +110,16 @@ export default function AddDeviceImagesModal({ isOpen, onClose, onSubmit }) {
           </label>
         </div>
 
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
           <button
             onClick={handleClose}
-            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+            className="w-full sm:w-auto px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
           >
             Batal
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+            className="w-full sm:w-auto px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
           >
             Tambah
           </button>

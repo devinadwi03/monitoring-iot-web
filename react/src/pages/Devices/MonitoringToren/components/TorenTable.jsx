@@ -34,9 +34,9 @@ export default function TorenTable({ data, searchTerm, sortOption, onSearchChang
       </div>
 
       {/* 🔹 Tabel */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
+      <div className="overflow-x-auto bg-white rounded-xl shadow max-h-[420px] overflow-y-auto">
         <table className="min-w-full border-collapse">
-          <thead>
+          <thead className="sticky top-0 bg-gray-100 z-10">
             <tr className="bg-gray-100 border-b">
               <th className="px-4 py-2 text-left text-gray-700">Waktu</th>
               <th className="px-4 py-2 text-left text-gray-700">Jarak HC</th>
