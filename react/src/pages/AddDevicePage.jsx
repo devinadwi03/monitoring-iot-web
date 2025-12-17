@@ -10,6 +10,7 @@ export default function AddDevicePage() {
   const [deviceName, setDeviceName] = useState("");
   const [deviceLocation, setDeviceLocation] = useState("");
   const [deviceSN, setDeviceSN] = useState("");
+  const [deviceDescription, setDeviceDescription] = useState("");
 
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
@@ -140,6 +141,12 @@ export default function AddDevicePage() {
       return;
     }
 
+    // VALIDASI PANJANG DESKRIPSI
+    if (deviceDescription.length > 2000) {
+      toast.error("Deskripsi maksimal 2000 karakter");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -147,6 +154,7 @@ export default function AddDevicePage() {
       const deviceRes = await createDevice({
         name: deviceName,
         location: deviceLocation,
+        description: deviceDescription,
         serial_number: deviceSN,
         device_type_id: selectedType,
       });
@@ -226,6 +234,21 @@ export default function AddDevicePage() {
               onChange={(e) => setDeviceLocation(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
             />
+
+            {/* DESCRIPTION */}
+            <div className="relative">
+              <textarea
+                placeholder="Keterangan / deskripsi device (opsional)"
+                value={deviceDescription}
+                onChange={(e) => setDeviceDescription(e.target.value)}
+                rows={4}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 pr-16 resize-none"
+              />
+
+              <span className="absolute bottom-2 right-1 text-xs p-2 text-gray-400">
+                {deviceDescription.length}/2000
+              </span>
+            </div>
 
             {/* IMAGE UPLOAD */}
             <div className="bg-white p-4 shadow rounded-md">

@@ -1,6 +1,12 @@
 import React from "react";
 
-export default function TorenTable({ data, searchTerm, sortOption, onSearchChange, onSortChange }) {
+export default function TorenTable({
+  data,
+  searchTerm,
+  sortOption,
+  onSearchChange,
+  onSortChange,
+}) {
   return (
     <section className="mt-10">
       <h2 className="text-lg font-semibold text-gray-700 mb-4 text-center">
@@ -46,7 +52,10 @@ export default function TorenTable({ data, searchTerm, sortOption, onSearchChang
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan="3" className="text-center text-gray-500 py-6 italic">
+                <td
+                  colSpan="3"
+                  className="text-center text-gray-500 py-6 italic"
+                >
                   Tidak ada data yang cocok dengan pencarian.
                 </td>
               </tr>
@@ -62,6 +71,10 @@ export default function TorenTable({ data, searchTerm, sortOption, onSearchChang
           </tbody>
         </table>
       </div>
+      {/* Footnote satuan */}
+      <p className="mt-2 text-sm text-gray-500 italic text-right">
+        * Seluruh nilai jarak ditampilkan dalam satuan cm
+      </p>
     </section>
   );
 }

@@ -17,7 +17,7 @@ class DeviceController extends Controller
         }
 
         return response()->json(
-            Device::select('id', 'name', 'serial_number', 'location', 'device_type_id', 'created_at')->get()
+            Device::select('id', 'name', 'serial_number', 'location', 'description', 'device_type_id', 'created_at')->get()
         );
     }
 
@@ -28,6 +28,7 @@ class DeviceController extends Controller
             'name' => 'required|string',
             'serial_number' => 'required|string',
             'location' => 'nullable|string',
+            'description' => 'nullable|string',
             'device_type_id' => 'required|exists:device_types,id',
         ]);
 
@@ -35,6 +36,7 @@ class DeviceController extends Controller
             'name' => $validated['name'],
             'serial_number' => $validated['serial_number'],
             'location' => $validated['location'] ?? null,
+            'description' => $validated['description'] ?? null,
             'device_type_id' => $validated['device_type_id'],
             'api_key' => bin2hex(random_bytes(32))
         ]);
@@ -52,7 +54,7 @@ class DeviceController extends Controller
         }
 
         // Jika bukan admin → sembunyikan data sensitif
-        $filtered = $device->only(['id', 'name', 'serial_number', 'location', 'device_type_id', 'created_at']);
+        $filtered = $device->only(['id', 'name', 'serial_number', 'location', 'description', 'device_type_id', 'created_at']);
 
         return response()->json($filtered);
     }
@@ -63,17 +65,12 @@ class DeviceController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string',
             'location' => 'sometimes|string',
+            'description' => 'sometimes|string',
             'serial_number' => 'sometimes|string',
             'device_type_id' => 'sometimes|exists:device_types,id',
         ]);
 
-        $device->update([
-            'name' => $validated['name'] ?? $device->name,
-            'location' => $validated['location'] ?? $device->location,
-            'serial_number' => $validated['serial_number'] ?? $device->serial_number,
-            'device_type_id' => $validated['device_type_id'],
-
-        ]);
+        $device->update($validated);
 
         return response()->json($device);
     }

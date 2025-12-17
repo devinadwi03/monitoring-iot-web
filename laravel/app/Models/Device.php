@@ -13,6 +13,7 @@ class Device extends Model
         'name',
         'api_key',
         'location',
+        'description',
         'serial_number',
         'device_type_id',
     ];
