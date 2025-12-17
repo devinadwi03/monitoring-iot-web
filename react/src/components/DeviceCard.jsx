@@ -5,7 +5,11 @@ import {
   CheckIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import { ClipboardIcon, ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
+import {
+  ClipboardIcon,
+  ArrowPathIcon,
+  Cog6ToothIcon,
+} from "@heroicons/react/24/outline";
 import EditSettingsModal from "./EditSettingsModal";
 import { getDeviceTypes } from "../api/deviceType";
 import { getDeviceThumbnail } from "../api/deviceImages";
@@ -16,6 +20,7 @@ export default function DeviceCard({
   name,
   serial_number,
   location,
+  deviceTypeName,
   api_key,
   created_at,
   updated_at,
@@ -89,7 +94,9 @@ export default function DeviceCard({
         <>
           <div
             onClick={onClick}
-            className="flex gap-4 items-start overflow-hidden"
+            className={`overflow-hidden flex gap-4 items-start ${
+              role !== "admin" ? "items-center" : ""
+            }`}
           >
             <div className="flex flex-col items-center gap-2 flex-shrink-0">
               {thumbnail ? (
@@ -105,9 +112,9 @@ export default function DeviceCard({
               )}
 
               {/* TOMBOL AKSI */}
-              <div className="flex gap-2">
-                {role === "admin" && (
-                  <>
+              {role === "admin" && (
+                <>
+                  <div className="flex gap-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -127,23 +134,39 @@ export default function DeviceCard({
                     >
                       <TrashIcon className="h-4 w-4 text-red-600" />
                     </button>
-                  </>
-                )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setModalOpen(true);
+                      }}
+                      className="p-2 rounded-full bg-blue-100 hover:bg-blue-200"
+                      title="Edit Settings"
+                    >
+                      <Cog6ToothIcon className="w-5 h-5 text-blue-600" />
+                    </button>
+                  </div>
+                </>
+              )}
 
+              {role !== "admin" && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setModalOpen(true);
                   }}
-                  className="p-2 rounded-full bg-blue-100 hover:bg-blue-200"
+                  className="absolute top-4 sm:top-3 right-3 p-2 rounded-full bg-blue-100 hover:bg-blue-200"
                   title="Edit Settings"
                 >
                   <Cog6ToothIcon className="w-5 h-5 text-blue-600" />
                 </button>
-              </div>
+              )}
             </div>
 
-            <div className="flex-1 min-w-0 space-y-1 overflow-hidden">
+            <div
+              className={`flex-1 min-w-0 space-y-1 overflow-hidden ${
+                role !== "admin" ? "pr-12" : ""
+              }`}
+            >
               <h2 className="text-lg font-bold text-indigo-600 truncate">
                 {name}
               </h2>
@@ -151,6 +174,10 @@ export default function DeviceCard({
                 SN: {serial_number}
               </p>
               <p className="text-gray-500 text-sm truncate">{location}</p>
+              <p className="text-gray-500 text-sm truncate">
+                <span className="font-bold">Tipe:</span>{" "}
+                {deviceTypeName || "-"}
+              </p>
 
               {/* Field tambahan khusus untuk admin */}
               {role === "admin" && (
@@ -196,16 +223,14 @@ export default function DeviceCard({
                   </div>
 
                   <p>
-                    <span className="font-semibold text-gray-700">
-                      Created at:
-                    </span>{" "}
+                    <span className="font-semibold text-gray-700">Dibuat:</span>{" "}
                     {created_at
                       ? new Date(created_at).toLocaleString("id-ID")
                       : "-"}
                   </p>
-                  <p>
+                  <p className="truncate flex-1">
                     <span className="font-semibold text-gray-700">
-                      Updated at:
+                      Terakhir Update:
                     </span>{" "}
                     {updated_at
                       ? new Date(updated_at).toLocaleString("id-ID")

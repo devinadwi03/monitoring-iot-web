@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import DeviceCard from "../components/DeviceCard";
 import { useNavigate } from "react-router-dom";
-import { getDevices, updateDevice, deleteDevice, regenerateApiKey } from "../api/device";
+import {
+  getDevices,
+  updateDevice,
+  deleteDevice,
+  regenerateApiKey,
+} from "../api/device";
 import { getMe } from "../api/auth";
+import { getDeviceTypes } from "../api/deviceType";
 import ConfirmModal from "../components/ConfirmModal";
 import toast from "react-hot-toast";
 
@@ -25,8 +31,23 @@ export default function DashboardPage() {
         const userData = await getMe();
         setUser(userData);
 
-        const deviceData = await getDevices();
-        setDevices(deviceData);
+        const [deviceData, deviceTypesData] = await Promise.all([
+          getDevices(),
+          getDeviceTypes(),
+        ]);
+        // map id → name
+        const typeMap = {};
+        deviceTypesData.forEach((dt) => {
+          typeMap[dt.id] = dt.name;
+        });
+
+        // inject ke device
+        const enrichedDevices = deviceData.map((d) => ({
+          ...d,
+          deviceTypeName: typeMap[d.device_type_id] || "-",
+        }));
+
+        setDevices(enrichedDevices);
       } catch (error) {
         console.error("Gagal ambil data:", error);
         toast.error("Gagal memuat data perangkat atau user.");
@@ -165,6 +186,7 @@ export default function DashboardPage() {
                 name={d.name}
                 serial_number={d.serial_number}
                 location={d.location}
+                deviceTypeName={d.deviceTypeName}
                 api_key={d.api_key}
                 created_at={d.created_at}
                 updated_at={d.updated_at}

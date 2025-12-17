@@ -17,7 +17,7 @@ class DeviceController extends Controller
         }
 
         return response()->json(
-            Device::select('id', 'name', 'serial_number', 'location', 'device_type_id')->get()
+            Device::select('id', 'name', 'serial_number', 'location', 'device_type_id', 'created_at')->get()
         );
     }
 
@@ -52,7 +52,7 @@ class DeviceController extends Controller
         }
 
         // Jika bukan admin → sembunyikan data sensitif
-        $filtered = $device->only(['id', 'name', 'serial_number', 'location', 'device_type_id']);
+        $filtered = $device->only(['id', 'name', 'serial_number', 'location', 'device_type_id', 'created_at']);
 
         return response()->json($filtered);
     }

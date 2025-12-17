@@ -13,7 +13,7 @@ export default function Navbar({ user, onLogout }) {
       : "hover:bg-white/10 px-3 py-1 rounded-full transition-all";
 
   return (
-    <nav className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 shadow-md relative">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 shadow-md">
       <div className="flex justify-between items-center">
         <h1 className="font-extrabold text-xl tracking-wide">Monitoring IoT</h1>
 

@@ -1,14 +1,16 @@
 // src/components/DeviceInfo.jsx
 import React from "react";
 
-export default function DeviceInfo({ device, deviceType }) {
+export default function DeviceInfo({ device, deviceType, role }) {
   if (!device) return null;
 
   return (
     <div className="bg-white shadow rounded-xl overflow-hidden">
       {/* HEADER CARD */}
       <div className="px-6 py-4 border-b">
-        <h2 className="text-2xl font-bold text-indigo-600 mb-1">{device.name}</h2>
+        <h2 className="text-2xl font-bold text-indigo-600 mb-1">
+          {device.name}
+        </h2>
         <p className="text-sm text-gray-500">Informasi dasar perangkat</p>
       </div>
 
@@ -39,15 +41,16 @@ export default function DeviceInfo({ device, deviceType }) {
               : "-"}
           </span>
         </div>
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
-          <span className="text-gray-500">Terakhir Diperbarui:</span>
-          <span className="font-medium text-gray-800">
-            {" "}
-            {device.updated_at
-              ? new Date(device.updated_at).toLocaleString("id-ID")
-              : "-"}
-          </span>
-        </div>
+        {role === "admin" && (
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
+            <span className="text-gray-500">Terakhir Update:</span>
+            <span className="font-medium text-gray-800">
+              {device.updated_at
+                ? new Date(device.updated_at).toLocaleString("id-ID")
+                : "-"}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
