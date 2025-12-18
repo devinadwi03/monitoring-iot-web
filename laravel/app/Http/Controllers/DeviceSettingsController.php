@@ -18,7 +18,7 @@ class DeviceSettingsController extends Controller
         $deviceId = $request->device_id;
 
         $device = Device::with('type')->findOrFail($deviceId);
-        $schema = $device->type->settings_schema['fields'];
+        $schema = $device->type->settings_schema['fields'] ?? [];
 
         $settings = DeviceSettings::where('device_id', $deviceId)->get();
 
@@ -26,25 +26,36 @@ class DeviceSettingsController extends Controller
             $existing = $settings->firstWhere('key', $field['key']);
 
             if (!$existing) {
-                $default = $field['default'] 
-                    ?? match ($field['type']) {
-                        'number' => 0,
-                        'boolean' => false,
-                        default => '',
-                    };
-
                 $new = DeviceSettings::create([
                     'device_id' => $deviceId,
                     'key'       => $field['key'],
-                    'value'     => $default,
+                    'value'     => $field['default'] ?? null,
                 ]);
 
                 $settings->push($new);
             }
         }
-        return response()->json($settings);
-    }
 
+        // 🔹 Merge settings + schema for response
+        $settingsMap = $settings->keyBy('key');
+
+        $result = [];
+
+        foreach ($schema as $field) {
+            $setting = $settingsMap->get($field['key']);
+
+            $result[] = [
+                'key'      => $field['key'],
+                'label'    => $field['label'] ?? $field['key'],
+                'type'     => $field['type'] ?? 'text',
+                'unit'     => $field['unit'] ?? null,
+                'value'    => $setting?->value,
+                'required' => $field['required'] ?? false,
+            ];
+        }
+
+        return response()->json($result);
+    }
 
     /**
      * POST /device-settings

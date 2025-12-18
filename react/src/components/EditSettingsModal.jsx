@@ -77,7 +77,7 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose, role }) {
         {/* Modal header */}
         <div className="mb-4 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-800">
-            Settings Device
+            Pengaturan Device
           </h2>
           <button
             onClick={onClose}
@@ -89,33 +89,43 @@ export default function EditSettingsModal({ deviceId, isOpen, onClose, role }) {
           <div className="text-gray-500 text-center py-10">Loading...</div>
         ) : settings.length === 0 ? (
           <p className="text-gray-500 text-sm text-center">
-            Tidak ada settings untuk device ini.
+            Tidak ada pengaturan untuk device ini.
           </p>
         ) : (
           <div className="space-y-3">
             {settings.map((s, idx) => (
-              <div key={s.id} className="flex items-start gap-2">
+              <div key={s.id} className="flex items-center gap-2">
                 <div className="flex-1">
-                  <label className="block text-sm mb-1">{s.key}</label>
+                  <label className="block text-sm mb-1">
+                    {s.label || s.key}
+                  </label>
 
-                  <input
-                    type="text"
-                    value={s.value || ""}
-                    onChange={(e) =>
-                      role === "admin" && handleChange(idx, e.target.value)
-                    }
-                    className={`w-full border border-gray-300 rounded-md px-3 py-2 ${
-                      role !== "admin" ? "bg-gray-100 cursor-not-allowed" : ""
-                    }`}
-                    disabled={role !== "admin"} // 💡 USER bisa lihat tapi tidak bisa edit
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={s.value || ""}
+                      onChange={(e) =>
+                        role === "admin" && handleChange(idx, e.target.value)
+                      }
+                      className={`w-full border border-gray-300 rounded-md px-3 py-2 ${
+                        role !== "admin" ? "bg-gray-100 cursor-not-allowed" : ""
+                      }`}
+                      disabled={role !== "admin"} // 💡 USER bisa lihat tapi tidak bisa edit
+                    />
+
+                    {s.unit && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                        {s.unit}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Tombol hapus hanya untuk admin */}
                 {role === "admin" && (
                   <button
                     onClick={() => handleDelete(s.id)}
-                    className="text-red-500 hover:text-red-700 mt-6"
+                    className="text-red-500 hover:text-red-700 mt-4"
                     title="Hapus setting"
                   >
                     ✕

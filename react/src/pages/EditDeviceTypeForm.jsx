@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  getDeviceTypeById,
-  updateDeviceType,
-} from "../api/deviceType";
+import { getDeviceTypeById, updateDeviceType } from "../api/deviceType";
 import toast from "react-hot-toast";
 
 export default function EditDeviceTypeForm() {
@@ -23,7 +20,7 @@ export default function EditDeviceTypeForm() {
         const dt = res.data || res;
 
         setName(dt.name);
-        setDescription(dt.description)
+        setDescription(dt.description);
         setFields(dt.settings_schema?.fields || []);
       } catch (err) {
         toast.error("Gagal memuat data device type");
@@ -35,7 +32,6 @@ export default function EditDeviceTypeForm() {
     fetchData();
   }, [id]);
 
-  // tambah field baru
   const addField = () => {
     setFields([
       ...fields,
@@ -43,6 +39,8 @@ export default function EditDeviceTypeForm() {
         label: "",
         key: "",
         type: "text",
+        unit: "",
+        default: "",
         required: false,
       },
     ]);
@@ -65,8 +63,29 @@ export default function EditDeviceTypeForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // validasi nama
     if (!name) {
       toast.error("Nama device type wajib diisi");
+      return;
+    }
+
+    // validasi fields
+    for (const f of fields) {
+      if (!f.label || !f.key) {
+        toast.error("Label dan Key wajib diisi");
+        return;
+      }
+
+      if (!/^[a-z_][a-z0-9_]*$/.test(f.key)) {
+        toast.error(`Key "${f.key}" tidak valid`);
+        return;
+      }
+    }
+
+    // cegah key duplikat
+    const keys = fields.map((f) => f.key);
+    if (new Set(keys).size !== keys.length) {
+      toast.error("Key field tidak boleh duplikat");
       return;
     }
 
@@ -86,9 +105,7 @@ export default function EditDeviceTypeForm() {
   };
 
   if (loading) {
-    return (
-      <div className="p-6 text-center text-gray-500">Loading...</div>
-    );
+    return <div className="p-6 text-center text-gray-500">Loading...</div>;
   }
 
   return (
@@ -108,15 +125,19 @@ export default function EditDeviceTypeForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            placeholder="Contoh: Monitoring Toren"
           />
         </div>
         <div>
-          <label className="block font-medium mb-1">Deskripsi Device Type</label>
+          <label className="block font-medium mb-1">
+            Deskripsi Device Type
+          </label>
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            placeholder="Contoh: Perangkat untuk memonitor kapasitas air"
           />
         </div>
 
@@ -160,6 +181,7 @@ export default function EditDeviceTypeForm() {
                         updateField(index, "label", e.target.value)
                       }
                       className="w-full border rounded px-2 py-1"
+                      placeholder="Contoh: Tinggi Toren"
                     />
                   </div>
 
@@ -169,9 +191,16 @@ export default function EditDeviceTypeForm() {
                       type="text"
                       value={field.key}
                       onChange={(e) =>
-                        updateField(index, "key", e.target.value)
+                        updateField(
+                          index,
+                          "key",
+                          e.target.value
+                            .toLowerCase()
+                            .replace(/\s+/g, "_")
+                            .replace(/[^a-z0-9_]/g, "")
+                        )
                       }
-                      placeholder="ex: toren_height"
+                      placeholder="contoh: tinggi_toren"
                       className="w-full border rounded px-2 py-1"
                     />
                   </div>
@@ -187,9 +216,40 @@ export default function EditDeviceTypeForm() {
                     >
                       <option value="text">Text</option>
                       <option value="number">Number</option>
-                      <option value="select">Select</option>
                       <option value="boolean">Boolean</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm">Satuan</label>
+                    <input
+                      type="text"
+                      value={field.unit || ""}
+                      onChange={(e) =>
+                        updateField(index, "unit", e.target.value)
+                      }
+                      placeholder="Contoh: cm, liter, %"
+                      className="w-full border rounded px-2 py-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm">Default Value</label>
+                    <input
+                      type={field.type === "number" ? "number" : "text"}
+                      value={field.default ?? ""}
+                      onChange={(e) =>
+                        updateField(
+                          index,
+                          "default",
+                          field.type === "number"
+                            ? Number(e.target.value)
+                            : e.target.value
+                        )
+                      }
+                      className="w-full border rounded px-2 py-1"
+                      placeholder="Nilai awal"
+                    />
                   </div>
 
                   <div className="flex items-center mt-6">

@@ -142,22 +142,36 @@ export default function DeviceTypeList() {
 
                               {dt.settings_schema?.fields?.length > 0 ? (
                                 <div className="border rounded-lg p-4 bg-white shadow-sm">
-                                  <table className="w-full text-sm">
+                                  <table className="w-full text-sm table-fixed">
                                     <thead>
                                       <tr className="text-gray-600 border-b">
-                                        <th className="py-2">Key</th>
-                                        <th className="py-2">Tipe</th>
-                                        <th className="py-2">Default</th>
+                                        <th className="py-2 text-left w-[30%]">Label</th>
+                                        <th className="py-2 text-left w-[20%]">Key</th>
+                                        <th className="py-2 text-center w-[15%]">Tipe</th>
+                                        <th className="py-2 text-center w-[15%]">Satuan</th>
+                                        <th className="py-2 text-right w-[20%]">Default</th>
                                       </tr>
                                     </thead>
 
                                     <tbody>
                                       {dt.settings_schema.fields.map((f) => (
-                                        <tr key={f.key} className="border-b">
-                                          <td className="py-2">{f.key}</td>
-                                          <td className="py-2">{f.type}</td>
-                                          <td className="py-2">
-                                            {String(f.default ?? "-")}
+                                        <tr key={f.key} className="border-b last:border-b-0">
+                                          <td className="py-2 text-left break-words">{f.label ?? "-"}</td>
+                                          <td className="py-2 text-left font-mono text-xs text-gray-500 truncate ...">{f.key}</td>
+                                          <td className="py-2 text-center">{f.type}</td>
+                                          <td className="py-2 text-center">
+                                            {f.unit ? (
+                                              <span className="inline-block px-2 py-0.5 text-xs bg-gray-100 rounded">
+                                                {f.unit}
+                                              </span>
+                                            ) : (
+                                              "-"
+                                            )}
+                                          </td>
+                                          <td className="py-2 text-right">
+                                            {f.default !== undefined
+                                              ? String(f.default)
+                                              : "-"}
                                           </td>
                                         </tr>
                                       ))}
