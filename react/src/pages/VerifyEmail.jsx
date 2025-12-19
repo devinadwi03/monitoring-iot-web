@@ -90,8 +90,8 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 px-4">
-      <div className="bg-white shadow-lg rounded-xl p-8 max-w-md w-full text-center animate-fadeIn">
+    <div className="flex min-h-screen items-start justify-center bg-gradient-to-br from-gray-50 to-gray-200 px-4 pt-36 sm:items-center sm:pt-0">
+      <div className="bg-white shadow-lg rounded-xl p-6 sm:p-8 max-w-md w-full text-center animate-fadeIn">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">
           {status === "loading"
             ? "Memverifikasi Email..."

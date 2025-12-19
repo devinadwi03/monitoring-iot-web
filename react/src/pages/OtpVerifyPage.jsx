@@ -165,7 +165,7 @@ export default function OtpVerifyPage({ onLogin }) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-start md:items-center justify-center px-4 sm:px-6 lg:px-8 pt-44 md:pt-0 bg-gray-100">
       <form
         onSubmit={handleVerify}
         className="bg-white shadow-xl rounded-xl p-6 w-full max-w-sm mx-auto"

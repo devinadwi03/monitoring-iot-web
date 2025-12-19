@@ -45,6 +45,7 @@ class DeviceSettingsController extends Controller
             $setting = $settingsMap->get($field['key']);
 
             $result[] = [
+                'id'       => $setting?->id,
                 'key'      => $field['key'],
                 'label'    => $field['label'] ?? $field['key'],
                 'type'     => $field['type'] ?? 'text',

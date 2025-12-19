@@ -68,7 +68,7 @@ export default function VerificationModal({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-      <div className="bg-white p-6 rounded-xl shadow-lg w-96 text-center animate-fadeIn relative">
+      <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto text-center animate-fadeIn relative">
         <h2 className="text-lg font-semibold mb-4">{title}</h2>
         <p className="text-sm mb-4">{description}</p>
 

@@ -73,7 +73,7 @@ export default function ResetPassword() {
     password && confirmPassword && password === confirmPassword;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-start justify-center bg-gray-100 px-4 pt-32 sm:items-center sm:pt-0">
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">
           Reset Password

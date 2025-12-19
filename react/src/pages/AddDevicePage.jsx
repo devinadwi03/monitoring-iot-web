@@ -349,15 +349,33 @@ export default function AddDevicePage() {
 
                 {settingsSchema.map((field) => (
                   <div key={field.key}>
-                    <label className="block text-sm mb-1">{field.label}</label>
-                    <input
-                      type={field.type}
-                      value={settingsValues[field.key]}
-                      onChange={(e) =>
-                        handleSettingChange(field.key, e.target.value)
-                      }
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
+                    <label className="block text-sm mb-1">
+                      {field.label}
+                      {field.unit && (
+                        <span className="text-xs text-gray-500 ml-1">
+                          ({field.unit})
+                        </span>
+                      )}
+                    </label>
+
+                    <div className="relative">
+                      <input
+                        type={field.type}
+                        value={settingsValues[field.key] ?? ""}
+                        onChange={(e) =>
+                          handleSettingChange(field.key, e.target.value)
+                        }
+                        className={`w-full border border-gray-300 rounded-md px-3 py-2 ${
+                          field.unit ? "pr-14" : ""
+                        }`}
+                      />
+
+                      {field.unit && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                          {field.unit}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

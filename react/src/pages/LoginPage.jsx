@@ -5,6 +5,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { validatePassword } from "../utils/passwordValidator";
 import { SiGoogleauthenticator, SiGmail } from "react-icons/si";
 import VerificationModal from "../components/VerificationModal";
+import toast from "react-hot-toast";
 import api from "../api/axios";
 
 export default function LoginPage({ onLogin }) {
@@ -18,7 +19,6 @@ export default function LoginPage({ onLogin }) {
   const { valid, errors } = validatePassword(password);
 
   const [rememberMe, setRememberMe] = useState(false);
-  const [feedback, setFeedback] = useState({ text: "", type: "" });
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode") || "login";
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -47,10 +47,7 @@ export default function LoginPage({ onLogin }) {
     try {
       if (mode === "register") {
         if (password !== confirmPassword) {
-          setFeedback({
-            type: "error",
-            text: "Konfirmasi password tidak sama",
-          });
+          toast.error("Konfirmasi password tidak sama");
           return;
         }
         await register({
@@ -64,10 +61,7 @@ export default function LoginPage({ onLogin }) {
         setModalType("register");
       } else if (mode === "login") {
         if (!email || !password) {
-          setFeedback({
-            type: "error",
-            text: "Isi email dan password terlebih dahulu",
-          });
+          toast.error("Isi email dan password terlebih dahulu");
           return;
         }
         try {
@@ -96,35 +90,29 @@ export default function LoginPage({ onLogin }) {
             setShowVerificationModal(true);
             setModalType("unverified");
           } else {
-            setFeedback({
-              type: "error",
-              text: message,
-            });
+            toast.error(message);
           }
         }
       } else if (mode === "forgot") {
         await forgotPassword(email);
-        setFeedback({
-          type: "success",
-          text: "Link reset password sudah dikirim ke email anda",
-        });
+        toast.success("Link reset password sudah dikirim ke email anda");
         navigate("/login?mode=login");
         setEmail("");
         setPassword("");
       }
     } catch (err) {
-      setFeedback({ type: "error", text: "Terjadi kesalahan, coba lagi" });
+      toast.error("Terjadi kesalahan, coba lagi");
     }
   };
 
   const handleResendVerification = async (email) => {
     try {
       await api.post("/resend-verification", { email });
+      toast.success("Email verifikasi berhasil dikirim ulang");
     } catch (err) {
       // Bisa log error kalau mau debug
+      toast.error("Gagal mengirim ulang email verifikasi");
       console.error("Resend verification failed:", err);
-    } finally {
-      setFeedback({ text: "", type: "" });
     }
   };
 
@@ -132,10 +120,7 @@ export default function LoginPage({ onLogin }) {
     e?.preventDefault?.(); // cegah submit default form
 
     if (!email || !password) {
-      setFeedback({
-        type: "error",
-        text: "Isi email dan password terlebih dahulu",
-      });
+      toast.error("Isi email dan password terlebih dahulu");
       return;
     }
     try {
@@ -169,15 +154,11 @@ export default function LoginPage({ onLogin }) {
         err.response?.status === 403 ||
         message.toLowerCase().includes("belum diverifikasi")
       ) {
-        setFeedback({
-          type: "unverified",
-          text: message,
-        });
+        toast.error(message);
+        setShowVerificationModal(true);
+        setModalType("unverified");
       } else {
-        setFeedback({
-          type: "error",
-          text: message,
-        });
+        toast.error(message);
       }
     }
   };
@@ -186,25 +167,13 @@ export default function LoginPage({ onLogin }) {
     password && confirmPassword && password === confirmPassword;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-start md:items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8 pt-32 md:pt-0">
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">
           {mode === "login" && "Monitoring IoT Login"}
           {mode === "register" && "Register Akun"}
           {mode === "forgot" && "Lupa Password"}
         </h2>
-
-        {feedback.text && (
-          <div className="mt-1 mb-3 text-center text-sm">
-            <p
-              className={
-                feedback.type === "error" ? "text-red-500" : "text-green-600"
-              }
-            >
-              {feedback.text}
-            </p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Nama (register) */}
@@ -322,7 +291,6 @@ export default function LoginPage({ onLogin }) {
                 className="text-blue-500 hover:underline"
                 onClick={() => {
                   navigate("/login?mode=forgot");
-                  setFeedback({ text: "", type: "" });
                 }}
               >
                 Forgot Password?
@@ -353,7 +321,7 @@ export default function LoginPage({ onLogin }) {
 
           {/* Modal untuk pilih metode login */}
           {showModal && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+            <div className="fixed inset-0 flex items-start md:items-center justify-center bg-black bg-opacity-40 z-50 pt-44 md:pt-0">
               <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
                 <h2 className="text-lg font-semibold mb-4">
                   Pilih Metode Login
