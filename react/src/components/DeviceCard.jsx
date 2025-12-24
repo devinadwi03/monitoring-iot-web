@@ -38,7 +38,6 @@ export default function DeviceCard({
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [editTypeId, setEditTypeId] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
-  const BASE_URL = "http://localhost:8000";
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -69,7 +68,7 @@ export default function DeviceCard({
         const res = await getDeviceThumbnail(id);
 
         // backend harus return path atau object
-        const thumbPath = res.data?.image_path || null;
+        const thumbPath = res.data?.image_url || null;
 
         setThumbnail(thumbPath);
       } catch (err) {
@@ -101,7 +100,7 @@ export default function DeviceCard({
             <div className="flex flex-col items-center gap-2 flex-shrink-0">
               {thumbnail ? (
                 <img
-                  src={`${BASE_URL}/${thumbnail}`}
+                  src={thumbnail}
                   alt="Thumbnail"
                   className="w-28 h-28 object-cover rounded-xl border"
                 />

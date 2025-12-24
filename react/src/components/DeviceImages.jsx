@@ -12,9 +12,6 @@ import ConfirmModal from "./ConfirmModal";
 import AddDeviceImagesModal from "./AddDeviceImagesModal";
 import EditDescriptionImagesModal from "./EditDescriptionImagesModal";
 
-const BASE_URL = "http://localhost:8000";
-// atau pakai hardcode kalau belum pakai env
-
 export default function DeviceImages({ deviceId, role }) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -136,7 +133,7 @@ export default function DeviceImages({ deviceId, role }) {
               }`}
             >
               <img
-                src={`${BASE_URL}/${img.image_path}`}
+                src={img.image_url}
                 alt={img.description || "Device Image"}
                 className="w-full h-32 object-cover"
               />

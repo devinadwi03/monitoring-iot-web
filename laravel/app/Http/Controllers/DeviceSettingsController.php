@@ -73,10 +73,38 @@ class DeviceSettingsController extends Controller
                     return $q->where('device_id', $request->device_id);
                 })
             ],
-            'value'     => 'required|string',
+            'value'     => 'nullable|string',
         ]);
 
+        // Ambil device dan device type
+        $device = Device::findOrFail($request->device_id);
+        $deviceType = $device->type;
+
+        if (!$deviceType) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Device type not found'
+            ], 400);
+        }
+
+        // Ambil schema
+        $schema = $deviceType->settings_schema;
+
+        // Ambil default value sesuai key
+        $field = collect($schema['fields'])->firstWhere('key', $request->key);
+
+        if (!$field) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Key not found in device type schema'
+            ], 400);
+        }
+
+        $validated['value'] = $request->value ?? $field['default'];
+
+        // Simpan setting
         $setting = DeviceSettings::create($validated);
+
 
         return response()->json([
             'success' => true,

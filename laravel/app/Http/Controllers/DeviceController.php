@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Device;
 use Illuminate\Support\Facades\Storage;
+use App\Services\GcsStorage;
 
 class DeviceController extends Controller
 {
@@ -77,14 +78,10 @@ class DeviceController extends Controller
 
     public function destroy(Device $device)
     {
-        // ============================
-        // 🔥 HAPUS SEMUA FILE GAMBAR
-        // ============================
-        $folder = 'public/device_images/device_' . $device->id;
+        $gcs = new GcsStorage();
 
-        if (Storage::exists($folder)) {
-            Storage::deleteDirectory($folder);
-        }
+        // 🔥 HAPUS SEMUA FILE GAMBAR DI GCS
+        $gcs->deleteFolder('device_images/device_' . $device->id . '/');
 
         // ============================
         // 🔥 HAPUS DATA DATABASE

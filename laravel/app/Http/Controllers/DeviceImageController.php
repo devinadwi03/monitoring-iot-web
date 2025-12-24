@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Services\GcsStorage;
+
 
 class DeviceImageController extends Controller
 {
@@ -15,14 +17,38 @@ class DeviceImageController extends Controller
     public function index($device_id)
     {
         $device = Device::with('images')->findOrFail($device_id);
-        return response()->json($device->images);
+        $gcs = new GcsStorage();
+        $images = $device->images->map(function ($img) use ($gcs) {
+            return [
+                'id' => $img->id,
+                'device_id' => $img->device_id,
+                'is_thumbnail' => $img->is_thumbnail,
+                'description' => $img->description,
+                'image_path' => $img->image_path,
+                'image_url' => $gcs->signedUrl($img->image_path, 60),
+                'created_at' => $img->created_at,
+            ];
+        });
+
+        return response()->json($images);
     }
 
     // Ambil thumbnail device
     public function thumbnail($device_id)
     {
         $device = Device::with('thumbnail')->findOrFail($device_id);
-        return response()->json($device->thumbnail);
+        if (!$device->thumbnail) {
+            return response()->json(null);
+        }
+        $gcs = new GcsStorage();
+
+        $thumb = $device->thumbnail;
+
+        return response()->json([
+            'id' => $thumb->id,
+            'image_path' => $thumb->image_path,
+            'image_url' => $gcs->signedurl($thumb->image_path, 60),
+        ]);
     }
 
     // Tambah gambar
@@ -36,25 +62,24 @@ class DeviceImageController extends Controller
 
         $device = Device::findOrFail($device_id);
 
-        $folder = 'public/device_images/device_' . $device_id;
-        if (!Storage::exists($folder)) {
-            Storage::makeDirectory($folder);
-        }
-
         $file = $request->file('image');
-        $extension = strtolower($file->getClientOriginalExtension());
 
         // ⬇️ Force JPG output
         $filename = time() . '.jpg';
-        $path = storage_path('app/' . $folder . '/' . $filename);
+        $gcsPath = "device_images/device_{$device_id}/{$filename}";
 
         // ⬇️ INIT IMAGE MANAGER v3
         $manager = new ImageManager(new Driver());
 
         // ⬇️ READ, RESIZE, CONVERT TO JPG
-        $img = $manager->read($file->getRealPath());
-        $img->scale(width: 1200); // maintain aspect ratio
-        $img->save($path, quality: 75);
+        $img = $manager->read($request->file('image')->getRealPath());
+        $img->scale(width: 1200);
+        $jpg = $img->toJpeg(75); // COMPRESS + JPG
+
+        // 🔥 UPLOAD TO GCS
+        $gcs = new GcsStorage();
+        $gcs->uploadStream($gcsPath, $jpg);
+
 
         // cek apakah device sudah punya thumbnail
         $hasThumbnail = $device->images()->where('is_thumbnail', true)->exists();
@@ -72,7 +97,7 @@ class DeviceImageController extends Controller
         }
 
         $image = $device->images()->create([
-            'image_path' => 'storage/device_images/device_' . $device_id . '/' . $filename,
+            'image_path' => $gcsPath,
             'is_thumbnail' => $shouldBeThumbnail,
             'description' => $request->description,
         ]);
@@ -99,31 +124,24 @@ class DeviceImageController extends Controller
             // ============================
             $filename = time() . '.jpg';  // <— aslinya pakai ekstensi asli, sekarang fix .jpg
 
-            $folder = 'public/device_images/device_' . $device->id;
-            if (!Storage::exists($folder)) {
-                Storage::makeDirectory($folder);
-            }
-
-            $path = storage_path('app/' . $folder . '/' . $filename);
+            $newPath = "device_images/device_{$device->id}/{$filename}";
 
             // ============================
             // 🔥 UPDATED: CONVERT → JPG
             // ============================
             $img = $manager->read($request->file('image')->getRealPath());
             $img->scale(width: 1200);              // resize
-            $img->encode('jpg', quality: 75);      // <— force convert + compress JPG
-            $img->save($path);
+            $jpg = $img->toJpeg(75);
 
-            // ============================
-            // 🔥 UPDATED: Hapus file lama
-            // ============================
-            $oldPath = 'public/device_images/device_' . $device->id . '/' . basename($image->image_path);
-            if (Storage::exists($oldPath)) {
-                Storage::delete($oldPath);
-            }
+            $gcs = new GcsStorage();
 
-            // Simpan path baru
-            $image->image_path = 'storage/device_images/device_' . $device->id . '/' . $filename;
+            // DELETE OLD
+            $gcs->delete($image->image_path);
+
+            // UPLOAD NEW
+            $gcs->uploadStream($newPath, $jpg);
+
+            $image->update(['image_path' => $newPath]);
         }
 
         return response()->json($image);
@@ -160,10 +178,8 @@ class DeviceImageController extends Controller
         $deviceId = $image->device_id;
         $wasThumbnail = $image->is_thumbnail;
 
-        // Hapus file fisik
-        if (Storage::exists('public/device_images/device_'.$deviceId.'/'.basename($image->image_path))) {
-            Storage::delete('public/device_images/device_'.$deviceId.'/'.basename($image->image_path));
-        }
+        $gcs = new GcsStorage();
+        $gcs->delete($image->image_path);
 
         $image->delete();
 
